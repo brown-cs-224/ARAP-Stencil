@@ -108,11 +108,6 @@ Eigen::Vector3f View::transformToWorldRay(int x, int y) {
 
 void View::mousePressEvent(QMouseEvent *event)
 {
-    float window_width = width();
-    float window_height = height();
-
-    GLfloat depth;
-
     float x = event->x();
     float y = event->y();
 

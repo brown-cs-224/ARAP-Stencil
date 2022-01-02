@@ -136,10 +136,20 @@ bool Shape::move(Eigen::Vector3f ray, Eigen::Vector3f start) {
         Eigen::Vector3f oldPos = m_vertices[lastSelected];
         Eigen::ParametrizedLine line = ParametrizedLine<float, 3>::Through(start, start+ray);
 
-        m_vertices[lastSelected] = line.projection(oldPos);
-        std::vector<Eigen::Vector3f> vertices;
-        copy(m_vertices.begin(), m_vertices.end(), back_inserter(vertices));
-        setVertices(vertices);
+        // p
+        std::vector<Eigen::Vector3f> new_vertices;// = arap.move(m_verticies, line.projection(oldPos));
+
+        // comment for ARAP
+        new_vertices.clear();
+        copy(m_vertices.begin(), m_vertices.end(), back_inserter(new_vertices));
+        new_vertices[lastSelected] = line.projection(oldPos);
+
+        // p'
+        std::vector<Eigen::Vector3f> old_vertices;
+        old_vertices.clear();
+        copy(m_vertices.begin(), m_vertices.end(), back_inserter(old_vertices));
+
+        setVertices(new_vertices);
         return true;
     }
     return false;
@@ -212,14 +222,12 @@ void Shape::select(Shader *shader, Eigen::Vector3f start, Eigen::Vector3f ray, b
         glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * verts.size() * 3, sizeof(float) * normals.size() * 3, static_cast<const void *>(normals.data()));
         glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3)), sizeof(float) * colors.size() * 3, static_cast<const void *>(colors.data()));
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        lastSelected = -1;
-    } else if(pos == anchors.end()) {
-        if(lastSelected == closest_vertex) {
-            lastSelected = -1;
-        } else {
-            lastSelected = closest_vertex;
-        }
     }
+    if(lastSelected == closest_vertex) {
+         lastSelected = -1;
+     } else {
+        lastSelected = closest_vertex;
+     }
 }
 
 
