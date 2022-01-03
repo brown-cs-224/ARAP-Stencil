@@ -16,25 +16,25 @@ win32 {
 
 SOURCES += \
     libs/glew-1.10.0/src/glew.c \
+    src/arap.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
     src/view.cpp \
     src/viewformat.cpp \
     src/graphics/Shader.cpp \
     src/graphics/GraphicsDebug.cpp \
-    src/simulation.cpp \
     src/graphics/shape.cpp \
     src/graphics/camera.cpp \
     src/graphics/MeshLoader.cpp
 
 HEADERS += \
+    src/arap.h \
     src/mainwindow.h \
     src/view.h \
     src/viewformat.h \
     src/graphics/Shader.h \
     src/graphics/ShaderAttribLocations.h \
     src/graphics/GraphicsDebug.h \
-    src/simulation.h \
     src/graphics/shape.h \
     src/graphics/camera.h \
     ui_mainwindow.h \

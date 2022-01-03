@@ -1,18 +1,17 @@
-#ifndef SIMULATION_H
-#define SIMULATION_H
+#ifndef ARAP_H
+#define ARAP_H
 
 #include "graphics/shape.h"
 #include <Eigen/StdList>
 #include <Eigen/StdVector>
 class Shader;
 
-class Simulation
+class ARAP
 {
 public:
-    Simulation();
+    ARAP();
 
     void init();
-    void update(float seconds);
     void draw(Shader *shader, GLenum mode);
     void select(Shader *shader, Eigen::Vector3f start, Eigen::Vector3f click, bool isAnchor);
     void toggleWire();
@@ -21,4 +20,4 @@ private:
     Shape m_shape;
 };
 
-#endif // SIMULATION_H
+#endif // ARAP_H

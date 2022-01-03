@@ -52,7 +52,7 @@ void View::initializeGL()
     m_defaultShader = new Shader(":/shaders/shader.vert", ":/shaders/shader.frag");
     m_pointShader = new Shader(":/shaders/anchorPoint.vert", ":/shaders/anchorPoint.geom", ":/shaders/anchorPoint.frag");
 
-    m_sim.init();
+    m_arap.init();
 
     m_camera.setPosition(Eigen::Vector3f(0, 0, 10));
     m_camera.lookAt(Eigen::Vector3f(0, 5, -15), Eigen::Vector3f(0, 5, 0), Eigen::Vector3f(0, 1, 0));
@@ -74,7 +74,7 @@ void View::paintGL()
     m_defaultShader->bind();
     m_defaultShader->setUniform("m", model);
     m_defaultShader->setUniform("vp", mvp);
-    m_sim.draw(m_defaultShader, GL_TRIANGLES);
+    m_arap.draw(m_defaultShader, GL_TRIANGLES);
     m_defaultShader->unbind();
 
     m_pointShader->bind();
@@ -82,7 +82,7 @@ void View::paintGL()
     m_pointShader->setUniform("vp", mvp);
     m_pointShader->setUniform("width", width());
     m_pointShader->setUniform("height", height());
-    m_sim.draw(m_pointShader, GL_POINTS);
+    m_arap.draw(m_pointShader, GL_POINTS);
     m_pointShader->unbind();
 }
 
@@ -113,7 +113,7 @@ void View::mousePressEvent(QMouseEvent *event)
 
     Eigen::Vector3f ray = transformToWorldRay(x, y);
 
-    m_sim.select(m_pointShader, m_camera.getPosition(), ray, event->button() == Qt::MouseButton::RightButton);
+    m_arap.select(m_pointShader, m_camera.getPosition(), ray, event->button() == Qt::MouseButton::RightButton);
 
     m_capture = true;
     m_lastX = event->x();
@@ -123,7 +123,7 @@ void View::mousePressEvent(QMouseEvent *event)
 void View::mouseMoveEvent(QMouseEvent *event)
 {
     Eigen::Vector3f ray = transformToWorldRay(event->x(), event->y());
-    if(!m_sim.move(ray,  m_camera.getPosition())) {
+    if(!m_arap.move(ray,  m_camera.getPosition())) {
 
         int deltaX = event->x() - m_lastX;
         int deltaY = event->y() - m_lastY;
@@ -182,7 +182,7 @@ void View::keyPressEvent(QKeyEvent *event)
     else if(event->key() == Qt::Key_E) {
         m_vertical += 1;
     } else if(event->key() == Qt::Key_T) {
-        m_sim.toggleWire();
+        m_arap.toggleWire();
     }
 }
 
@@ -220,7 +220,6 @@ void View::keyReleaseEvent(QKeyEvent *event)
 void View::tick()
 {
     float seconds = m_time.restart() * 0.001;
-    m_sim.update(0.01);
 
     auto look = m_camera.getLook();
     look.y() = 0;

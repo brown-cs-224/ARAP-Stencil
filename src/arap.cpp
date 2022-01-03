@@ -1,4 +1,4 @@
-#include "simulation.h"
+#include "arap.h"
 
 #include <iostream>
 #include <set>
@@ -7,9 +7,9 @@
 #include<vector>
 using namespace Eigen;
 
-Simulation::Simulation(){}
+ARAP::ARAP(){}
 
-void Simulation::init()
+void ARAP::init()
 {
     // STUDENTS: This code loads up the tetrahedral mesh in 'example-meshes/single-tet.mesh'
     //    (note: your working directory must be set to the root directory of the starter code
@@ -28,26 +28,23 @@ void Simulation::init()
     }
 }
 
-void Simulation::update(float seconds)
-{
-}
 
-void Simulation::draw(Shader *shader, GLenum mode)
+void ARAP::draw(Shader *shader, GLenum mode)
 {
     m_shape.draw(shader, mode);
 }
 
-void Simulation::select(Shader *shader, Eigen::Vector3f start, Vector3f ray, bool isAnchor)
+void ARAP::select(Shader *shader, Eigen::Vector3f start, Vector3f ray, bool isAnchor)
 {
     m_shape.select(shader, start, ray, isAnchor);
 }
 
-bool Simulation::move(Vector3f ray, Eigen::Vector3f start)
+bool ARAP::move(Vector3f ray, Eigen::Vector3f start)
 {
     return m_shape.move(ray, start);
 }
 
-void Simulation::toggleWire()
+void ARAP::toggleWire()
 {
     m_shape.toggleWireframe();
 }

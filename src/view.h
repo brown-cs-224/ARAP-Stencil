@@ -1,7 +1,7 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include "simulation.h"
+#include "arap.h"
 #include "graphics/camera.h"
 #include "graphics/Shader.h"
 
@@ -51,7 +51,7 @@ private:
     GLuint depthBuffer;
     GLuint frameTexture;
 
-    Simulation m_sim;
+    ARAP m_arap;
     Camera m_camera;
     Shader *m_defaultShader;
     Shader *m_pointShader;
