@@ -18,7 +18,7 @@ void Simulation::init()
     std::vector<Vector3f> vertices;
     std::vector<Vector3f> normals;
     std::vector<Vector3i> tets;
-    if(MeshLoader::loadTriMesh("example-meshes/cow.obj", vertices, normals,tets)) {
+    if(MeshLoader::loadTriMesh("/Users/gene/Desktop/arap/meshes/cow.obj", vertices, normals,tets)) {
         m_shape.init(vertices, tets);
     }
     //m_shape.setModelMatrix(Affine3f(Eigen::Translation3f(0, 5, 0)));

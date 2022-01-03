@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 #include <vector>
+#include <unordered_set>
 
 #define EIGEN_DONT_VECTORIZE
 #define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
@@ -27,7 +28,7 @@ public:
     void toggleWireframe();
 
     void draw(Shader *shader, GLenum mode);
-    void select(Shader *shader,  Eigen::Vector3f start, Eigen::Vector3f ray, bool isAnchor);
+    void select(Shader *shader,  Eigen::Vector3f start, Eigen::Vector3f ray, bool isRightClick);
     bool move(Eigen::Vector3f ray,Eigen::Vector3f start);
 
 private:
@@ -46,6 +47,14 @@ private:
     std::vector<Eigen::Vector3i> m_faces;
     std::vector<Eigen::Vector3f> m_vertices;
     std::vector<int> anchors;
+    std::unordered_set<int> m_anchors;
+//    Helper function
+    Eigen::Vector3f getNormal(const Eigen::Vector3i& face);
+    void updateMesh(const std::vector<Eigen::Vector3i> &triangles,
+                    const std::vector<Eigen::Vector3f> &vertices,
+                           std::vector<Eigen::Vector3f>& verts,
+                           std::vector<Eigen::Vector3f>& normals,
+                           std::vector<Eigen::Vector3f>& colors);
 
     Eigen::Matrix4f m_modelMatrix;
     int lastSelected = -1;

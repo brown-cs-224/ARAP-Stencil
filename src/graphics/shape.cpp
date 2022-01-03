@@ -4,6 +4,7 @@
 #include "graphics/Shader.h"
 
 using namespace Eigen;
+using namespace std;
 
 Shape::Shape()
     :
@@ -14,6 +15,43 @@ Shape::Shape()
 {
 }
 
+
+Eigen::Vector3f Shape::getNormal(const Eigen::Vector3i& face){
+    Vector3f& v1 = m_vertices[face[0]];
+    Vector3f& v2 = m_vertices[face[1]];
+    Vector3f& v3 = m_vertices[face[2]];
+    Vector3f e1 = v2 - v1;
+    Vector3f e2 = v3 - v1;
+    Vector3f n = e1.cross(e2);
+    return  n/n.norm();
+}
+
+void Shape::updateMesh(const std::vector<Eigen::Vector3i> &triangles,
+                       const std::vector<Eigen::Vector3f> &vertices,
+                       std::vector<Eigen::Vector3f>& verts,
+                       std::vector<Eigen::Vector3f>& normals,
+                       std::vector<Eigen::Vector3f>& colors){
+    verts.reserve(triangles.size() * 3);
+    normals.reserve(triangles.size() * 3);
+    for(const Eigen::Vector3i& f : triangles) {
+        Vector3f n = getNormal(f);
+
+        for (auto& v: {f[0], f[1], f[2]}) {
+            normals.push_back(n);
+            verts.push_back(vertices[v]);
+
+            if (m_anchors.find(v) == m_anchors.end()){
+                colors.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
+            } else {
+                colors.push_back(Eigen::Vector3f(0.f, 0.f, 1.f));
+            }
+
+        }
+    }
+}
+
+
+
 void Shape::init(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3i> &triangles)
 {
     m_vertices.clear();
@@ -23,27 +61,11 @@ void Shape::init(const std::vector<Eigen::Vector3f> &vertices, const std::vector
     std::vector<Eigen::Vector3f> normals;
     std::vector<Eigen::Vector3f> colors;
     std::vector<Eigen::Vector3i> faces;
-    verts.reserve(triangles.size() * 3);
-    normals.reserve(triangles.size() * 3);
-    for(auto& f : triangles) {
-        auto& v1 = vertices[f[0]];
-        auto& v2 = vertices[f[1]];
-        auto& v3 = vertices[f[2]];
-        auto& e1 = v2 - v1;
-        auto& e2 = v3 - v1;
-        auto n = e1.cross(e2);
-        int s = verts.size();
-        faces.push_back(Eigen::Vector3i(s, s + 1, s + 2));
-        normals.push_back(n);
-        normals.push_back(n);
-        normals.push_back(n);
-        verts.push_back(v1);
-        verts.push_back(v2);
-        verts.push_back(v3);
-        colors.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
-        colors.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
-        colors.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
-    }
+    faces.reserve(triangles.size());
+
+    for(int s = 0; s < triangles.size() * 3; s+=3) faces.push_back(Eigen::Vector3i(s, s + 1, s + 2));
+    updateMesh(triangles, vertices, verts, normals, colors);
+
     glGenBuffers(1, &m_surfaceVbo);
     glGenBuffers(1, &m_surfaceIbo);
     glGenVertexArrays(1, &m_surfaceVao);
@@ -92,37 +114,8 @@ void Shape::setVertices(const std::vector<Eigen::Vector3f> &vertices)
     std::vector<Eigen::Vector3f> normals;
     std::vector<Eigen::Vector3f> colors;
 
-    verts.reserve(m_faces.size() * 3);
-    normals.reserve(m_faces.size() * 3);
-    for(auto& f : m_faces) {
-        Vector3f v1 = Vector3f(vertices[f[0]].x(), vertices[f[0]].y(), vertices[f[0]].z());
-        Vector3f v2 = Vector3f(vertices[f[1]].x(), vertices[f[1]].y(), vertices[f[1]].z());
-        Vector3f v3 = Vector3f(vertices[f[2]].x(), vertices[f[2]].y(), vertices[f[2]].z());
-        auto& e1 = v2 - v1;
-        auto& e2 = v3 - v1;
-        auto n = e1.cross(e2);
-        normals.push_back(n);
-        normals.push_back(n);
-        normals.push_back(n);
-        verts.push_back(v1);
-        verts.push_back(v2);
-        verts.push_back(v3);
-        if(std::find(anchors.begin(), anchors.end(), f[0]) != anchors.end()) {
-            colors.push_back(Eigen::Vector3f(0.f, 0.f, 1.f));
-        } else {
-            colors.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
-        }
-        if(std::find(anchors.begin(), anchors.end(), f[1]) != anchors.end()) {
-            colors.push_back(Eigen::Vector3f(0.f, 0.f, 1.f));
-        } else {
-            colors.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
-        }
-        if(std::find(anchors.begin(), anchors.end(), f[2]) != anchors.end()) {
-            colors.push_back(Eigen::Vector3f(0.f, 0.f, 1.f));
-        } else {
-            colors.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
-        }
-    }
+    updateMesh(m_faces, vertices, verts, normals, colors);
+
     glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3) + (colors.size() * 3)), nullptr, GL_DYNAMIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * verts.size() * 3, static_cast<const void *>(verts.data()));
@@ -132,7 +125,7 @@ void Shape::setVertices(const std::vector<Eigen::Vector3f> &vertices)
 }
 
 bool Shape::move(Eigen::Vector3f ray, Eigen::Vector3f start) {
-    if(lastSelected > -1) {
+    if(lastSelected > -1 && m_anchors.find(lastSelected) != m_anchors.end()) {
         Eigen::Vector3f oldPos = m_vertices[lastSelected];
         Eigen::ParametrizedLine line = ParametrizedLine<float, 3>::Through(start, start+ray);
 
@@ -157,7 +150,7 @@ bool Shape::move(Eigen::Vector3f ray, Eigen::Vector3f start) {
 
 
 
-void Shape::select(Shader *shader, Eigen::Vector3f start, Eigen::Vector3f ray, bool isAnchor) {
+void Shape::select(Shader *shader, Eigen::Vector3f start, Eigen::Vector3f ray, bool isRightClick) {
     int closest_vertex = -1;
     int i=0;
     float dist = std::numeric_limits<float>::max();
@@ -174,60 +167,37 @@ void Shape::select(Shader *shader, Eigen::Vector3f start, Eigen::Vector3f ray, b
     if(dist >= 0.03) {
         closest_vertex = -1;
     }
-    auto pos = std::find(anchors.begin(), anchors.end(), closest_vertex);
-    int index = pos - anchors.begin();
-    if(isAnchor) {
-        if(pos != anchors.end()) {
-            anchors.erase(pos);
+
+    if(isRightClick){
+        if(m_anchors.find(closest_vertex) != m_anchors.end()) {
+            m_anchors.erase(closest_vertex);
         } else if (closest_vertex != -1){
-            anchors.push_back(closest_vertex);
+            m_anchors.insert(closest_vertex);
         }
+
         std::vector<Eigen::Vector3f> verts;
         std::vector<Eigen::Vector3f> normals;
         std::vector<Eigen::Vector3f> colors;
-        verts.reserve(m_faces.size() * 3);
-        normals.reserve(m_faces.size() * 3);
-        for(auto& f : m_faces) {
-            Vector3f v1 = Vector3f(m_vertices[f[0]].x(), m_vertices[f[0]].y(), m_vertices[f[0]].z());
-            Vector3f v2 = Vector3f(m_vertices[f[1]].x(), m_vertices[f[1]].y(), m_vertices[f[1]].z());
-            Vector3f v3 = Vector3f(m_vertices[f[2]].x(), m_vertices[f[2]].y(), m_vertices[f[2]].z());
-            auto& e1 = v2 - v1;
-            auto& e2 = v3 - v1;
-            auto n = e1.cross(e2);
-            normals.push_back(n);
-            normals.push_back(n);
-            normals.push_back(n);
-            verts.push_back(v1);
-            verts.push_back(v2);
-            verts.push_back(v3);
-            if(std::find(anchors.begin(), anchors.end(), f[0]) != anchors.end()) {
-                colors.push_back(Eigen::Vector3f(0.f, 0.f, 1.f));
-            } else {
-                colors.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
-            }
-            if(std::find(anchors.begin(), anchors.end(), f[1]) != anchors.end()) {
-                colors.push_back(Eigen::Vector3f(0.f, 0.f, 1.f));
-            } else {
-                colors.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
-            }
-            if(std::find(anchors.begin(), anchors.end(), f[2]) != anchors.end()) {
-                colors.push_back(Eigen::Vector3f(0.f, 0.f, 1.f));
-            } else {
-                colors.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
-            }
-        }
+        updateMesh(m_faces, m_vertices, verts, normals, colors);
+
+
         glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3) + (colors.size() * 3)), nullptr, GL_DYNAMIC_DRAW);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * verts.size() * 3, static_cast<const void *>(verts.data()));
         glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * verts.size() * 3, sizeof(float) * normals.size() * 3, static_cast<const void *>(normals.data()));
         glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3)), sizeof(float) * colors.size() * 3, static_cast<const void *>(colors.data()));
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+        lastSelected = -1;
+    } else {
+        if(lastSelected == closest_vertex) {
+            //left click on the same point
+                 lastSelected = -1;
+        } else {
+            //left click on new point
+                lastSelected = closest_vertex;
+       }
     }
-    if(lastSelected == closest_vertex) {
-         lastSelected = -1;
-     } else {
-        lastSelected = closest_vertex;
-     }
+
 }
 
 
