@@ -13,9 +13,12 @@ public:
 
     void init();
     void draw(Shader *shader, GLenum mode);
-    void select(Shader *shader, Eigen::Vector3f start, Eigen::Vector3f click, bool isAnchor);
+    void select(Shader *shader, int vertex);
     void toggleWire();
-    bool move(Eigen::Vector3f ray, Eigen::Vector3f start);
+    void move(int vertex, Eigen::Vector3f pos);
+    int getClosestVertex(Eigen::Vector3f ray, Eigen::Vector3f start);
+    bool getAnchorPos(int lastSelected, Eigen::Vector3f& pos,
+                                 Eigen::Vector3f ray, Eigen::Vector3f start);
 private:
     Shape m_shape;
 };

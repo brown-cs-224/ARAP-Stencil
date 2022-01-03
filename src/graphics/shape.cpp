@@ -45,7 +45,6 @@ void Shape::updateMesh(const std::vector<Eigen::Vector3i> &triangles,
             } else {
                 colors.push_back(Eigen::Vector3f(0.f, 0.f, 1.f));
             }
-
         }
     }
 }
@@ -124,35 +123,29 @@ void Shape::setVertices(const std::vector<Eigen::Vector3f> &vertices)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-bool Shape::move(Eigen::Vector3f ray, Eigen::Vector3f start) {
-    if(lastSelected > -1 && m_anchors.find(lastSelected) != m_anchors.end()) {
+bool Shape::getAnchorPos(int lastSelected, Eigen::Vector3f& pos,
+                                    Eigen::Vector3f ray, Eigen::Vector3f start){
+    bool isAnchor = m_anchors.find(lastSelected) != m_anchors.end();
+    if(isAnchor) {
         Eigen::Vector3f oldPos = m_vertices[lastSelected];
         Eigen::ParametrizedLine line = ParametrizedLine<float, 3>::Through(start, start+ray);
-
-        // p
-        std::vector<Eigen::Vector3f> new_vertices;// = arap.move(m_verticies, line.projection(oldPos));
-
-        // comment for ARAP
-        new_vertices.clear();
-        copy(m_vertices.begin(), m_vertices.end(), back_inserter(new_vertices));
-        new_vertices[lastSelected] = line.projection(oldPos);
-
-        // p'
-        std::vector<Eigen::Vector3f> old_vertices;
-        old_vertices.clear();
-        copy(m_vertices.begin(), m_vertices.end(), back_inserter(old_vertices));
-
-        setVertices(new_vertices);
-        return true;
+        pos = line.projection(oldPos);
     }
-    return false;
+    return isAnchor;
 }
 
+std::vector<Eigen::Vector3f> Shape::getVertices(){
+    return m_vertices;
+}
+
+const std::unordered_set<int>& Shape::getAnchors(){
+    return m_anchors;
+};
 
 
-void Shape::select(Shader *shader, Eigen::Vector3f start, Eigen::Vector3f ray, bool isRightClick) {
+int Shape::getClosestVertex(Eigen::Vector3f start, Eigen::Vector3f ray, float threshold){
     int closest_vertex = -1;
-    int i=0;
+    int i = 0;
     float dist = std::numeric_limits<float>::max();
     Eigen::ParametrizedLine line = ParametrizedLine<float, 3>::Through(start, start + ray);
     for(auto& v : m_vertices) {
@@ -164,39 +157,32 @@ void Shape::select(Shader *shader, Eigen::Vector3f start, Eigen::Vector3f ray, b
         i++;
     }
 
-    if(dist >= 0.03) {
+    if(dist >= threshold) {
         closest_vertex = -1;
     }
 
-    if(isRightClick){
-        if(m_anchors.find(closest_vertex) != m_anchors.end()) {
-            m_anchors.erase(closest_vertex);
-        } else if (closest_vertex != -1){
-            m_anchors.insert(closest_vertex);
-        }
+    return closest_vertex;
+}
 
-        std::vector<Eigen::Vector3f> verts;
-        std::vector<Eigen::Vector3f> normals;
-        std::vector<Eigen::Vector3f> colors;
-        updateMesh(m_faces, m_vertices, verts, normals, colors);
+void Shape::select(Shader *shader, int closest_vertex) {
 
-
-        glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3) + (colors.size() * 3)), nullptr, GL_DYNAMIC_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * verts.size() * 3, static_cast<const void *>(verts.data()));
-        glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * verts.size() * 3, sizeof(float) * normals.size() * 3, static_cast<const void *>(normals.data()));
-        glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3)), sizeof(float) * colors.size() * 3, static_cast<const void *>(colors.data()));
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        lastSelected = -1;
+    if(m_anchors.find(closest_vertex) != m_anchors.end()) {
+        m_anchors.erase(closest_vertex);
     } else {
-        if(lastSelected == closest_vertex) {
-            //left click on the same point
-                 lastSelected = -1;
-        } else {
-            //left click on new point
-                lastSelected = closest_vertex;
-       }
+        m_anchors.insert(closest_vertex);
     }
+
+    std::vector<Eigen::Vector3f> verts;
+    std::vector<Eigen::Vector3f> normals;
+    std::vector<Eigen::Vector3f> colors;
+    updateMesh(m_faces, m_vertices, verts, normals, colors);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3) + (colors.size() * 3)), nullptr, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * verts.size() * 3, static_cast<const void *>(verts.data()));
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * verts.size() * 3, sizeof(float) * normals.size() * 3, static_cast<const void *>(normals.data()));
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3)), sizeof(float) * colors.size() * 3, static_cast<const void *>(colors.data()));
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 }
 

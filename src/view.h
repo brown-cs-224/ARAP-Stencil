@@ -62,6 +62,8 @@ private:
 
     bool m_capture;
 
+    int m_lastSelected = -1;
+
 private slots:
     void tick();
 };

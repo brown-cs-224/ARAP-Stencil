@@ -113,29 +113,52 @@ void View::mousePressEvent(QMouseEvent *event)
 
     Eigen::Vector3f ray = transformToWorldRay(x, y);
 
-    m_arap.select(m_pointShader, m_camera.getPosition(), ray, event->button() == Qt::MouseButton::RightButton);
+    int closest_vertex = m_arap.getClosestVertex(m_camera.getPosition(), ray);
+
+    if (closest_vertex != -1) {
+        if (event->button() == Qt::MouseButton::RightButton){
+            //right click
+            m_arap.select(m_pointShader, closest_vertex);
+            m_lastSelected = -1;
+        } else {
+            if(m_lastSelected == closest_vertex) {
+                //left click on the same point
+                     m_lastSelected = -1;
+            } else {
+                //left click on new point
+                    m_lastSelected = closest_vertex;
+           }
+        }
+    }
 
     m_capture = true;
     m_lastX = event->x();
     m_lastY = event->y();
+
 }
 
 void View::mouseMoveEvent(QMouseEvent *event)
 {
-    Eigen::Vector3f ray = transformToWorldRay(event->x(), event->y());
-    if(!m_arap.move(ray,  m_camera.getPosition())) {
+    if (m_lastSelected != -1){
+        Eigen::Vector3f ray = transformToWorldRay(event->x(), event->y());
 
-        int deltaX = event->x() - m_lastX;
-        int deltaY = event->y() - m_lastY;
+        Eigen::Vector3f pos;
 
-        if(m_capture) {
-            if(deltaX != 0 || deltaY != 0) {
-                m_camera.rotate(-deltaX * 0.01f, deltaY * 0.01f);
+        if (m_arap.getAnchorPos(m_lastSelected, pos, ray, m_camera.getPosition())) {
+            m_arap.move(m_lastSelected, pos);
+        } else{
+            int deltaX = event->x() - m_lastX;
+            int deltaY = event->y() - m_lastY;
+
+            if(m_capture) {
+                if(deltaX != 0 || deltaY != 0) {
+                    m_camera.rotate(-deltaX * 0.01f, deltaY * 0.01f);
+                }
             }
-        }
 
-        m_lastX = event->x();
-        m_lastY = event->y();
+            m_lastX = event->x();
+            m_lastY = event->y();
+        }
     }
 }
 

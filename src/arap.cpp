@@ -29,22 +29,39 @@ void ARAP::init()
 }
 
 
+void ARAP::move(int vertex, Vector3f pos)
+{
+    std::vector<Eigen::Vector3f> new_vertices = m_shape.getVertices();
+    const std::unordered_set<int>& anchors = m_shape.getAnchors();
+
+    //TODO: implement ARAP here
+    new_vertices[vertex] = pos;
+
+    m_shape.setVertices(new_vertices);
+
+}
+//////////////////// No need to edit after this /////////////////////////
+int ARAP::getClosestVertex(Eigen::Vector3f start, Eigen::Vector3f ray){
+    return m_shape.getClosestVertex(start, ray);
+}
+
+
 void ARAP::draw(Shader *shader, GLenum mode)
 {
     m_shape.draw(shader, mode);
 }
 
-void ARAP::select(Shader *shader, Eigen::Vector3f start, Vector3f ray, bool isAnchor)
+void ARAP::select(Shader *shader, int vertex)
 {
-    m_shape.select(shader, start, ray, isAnchor);
+    m_shape.select(shader, vertex);
 }
 
-bool ARAP::move(Vector3f ray, Eigen::Vector3f start)
-{
-    return m_shape.move(ray, start);
-}
 
 void ARAP::toggleWire()
 {
     m_shape.toggleWireframe();
+}
+
+bool ARAP::getAnchorPos(int lastSelected, Eigen::Vector3f& pos, Eigen::Vector3f ray, Eigen::Vector3f start){
+    return m_shape.getAnchorPos(lastSelected, pos, ray, start);
 }

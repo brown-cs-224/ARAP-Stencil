@@ -28,8 +28,12 @@ public:
     void toggleWireframe();
 
     void draw(Shader *shader, GLenum mode);
-    void select(Shader *shader,  Eigen::Vector3f start, Eigen::Vector3f ray, bool isRightClick);
-    bool move(Eigen::Vector3f ray,Eigen::Vector3f start);
+    void select(Shader *shader,  int vertex);
+    int getClosestVertex(Eigen::Vector3f start, Eigen::Vector3f ray, float threshold = 0.03);
+    bool getAnchorPos(int lastSelected, Eigen::Vector3f& pos,
+                                 Eigen::Vector3f ray, Eigen::Vector3f start);
+    std::vector<Eigen::Vector3f> getVertices();
+    const std::unordered_set<int>& getAnchors();
 
 private:
     GLuint m_surfaceVao;
