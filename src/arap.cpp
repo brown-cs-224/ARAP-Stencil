@@ -4,30 +4,32 @@
 #include <set>
 #include <map>
 #include "graphics/MeshLoader.h"
-#include<vector>
+#include <vector>
+#include <filesystem>
 using namespace Eigen;
 
 ARAP::ARAP(){}
 
-void ARAP::init()
+void ARAP::init(Eigen::Vector3f &min, Eigen::Vector3f &max)
 {
-    // STUDENTS: This code loads up the tetrahedral mesh in 'example-meshes/single-tet.mesh'
-    //    (note: your working directory must be set to the root directory of the starter code
-    //    repo for this file to load correctly). You'll probably want to instead have this code
-    //    load up a tet mesh based on e.g. a file path specified with a command line argument.
     std::vector<Vector3f> vertices;
     std::vector<Vector3f> normals;
     std::vector<Vector3i> tets;
-    if(MeshLoader::loadTriMesh("/Users/gene/Desktop/arap/meshes/cow.obj", vertices, normals,tets)) {
+    if(MeshLoader::loadTriMesh("/Users/blinnbryce/Documents/GitHub/arap/meshes/cube.obj", vertices, normals,tets)) {
         m_shape.init(vertices, tets);
     }
-    //m_shape.setModelMatrix(Affine3f(Eigen::Translation3f(0, 5, 0)));
     std::vector<Vector3d> double_verts;
+
+    MatrixX3f all_vertices = MatrixX3f(vertices.size(),3);
+    int i = 0;
     for(auto particle: vertices) {
         double_verts.push_back(Vector3d((double)particle[0], (double)particle[1], (double)particle[2]));
+        all_vertices.row(i) = particle;
+        i++;
     }
+    min = all_vertices.colwise().minCoeff();
+    max = all_vertices.colwise().maxCoeff();
 }
-
 
 void ARAP::move(int vertex, Vector3f pos)
 {
@@ -38,7 +40,6 @@ void ARAP::move(int vertex, Vector3f pos)
     new_vertices[vertex] = pos;
 
     m_shape.setVertices(new_vertices);
-
 }
 //////////////////// No need to edit after this /////////////////////////
 int ARAP::getClosestVertex(Eigen::Vector3f start, Eigen::Vector3f ray){

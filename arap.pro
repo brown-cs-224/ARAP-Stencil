@@ -5,6 +5,7 @@ TEMPLATE = app
 
 QMAKE_CXXFLAGS += -mstackrealign
 CONFIG += c++17
+CONFIG += sdk_no_version_check
 
 unix:!macx {
     LIBS += -lGLU
@@ -53,5 +54,6 @@ DISTFILES += \
     res/shaders/shader.frag
 
 INCLUDEPATH += src libs glm libs/glew-1.10.0/include
+INCLUDEPATH += /usr/local/include/eigen3
 DEPENDPATH += src libs glm libs/glew-1.10.0/include
 

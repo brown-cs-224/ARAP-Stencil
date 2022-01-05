@@ -52,11 +52,12 @@ void View::initializeGL()
     m_defaultShader = new Shader(":/shaders/shader.vert", ":/shaders/shader.frag");
     m_pointShader = new Shader(":/shaders/anchorPoint.vert", ":/shaders/anchorPoint.geom", ":/shaders/anchorPoint.frag");
 
-    m_arap.init();
+    Eigen::Vector3f min, max, center, position;
+    m_arap.init(min,max);
+    center = (min + max) / 2.;
+    position = center - Eigen::Vector3f::UnitZ() * (max - min)[2] * 4;
 
-    m_camera.setPosition(Eigen::Vector3f(0, 0, 10));
-    m_camera.lookAt(Eigen::Vector3f(0, 5, -15), Eigen::Vector3f(0, 5, 0), Eigen::Vector3f(0, 1, 0));
-    m_camera.setTarget(Eigen::Vector3f(0, 50, 0));
+    m_camera.lookAt(position, center, Eigen::Vector3f::UnitY());
     m_camera.setPerspective(120, width() / static_cast<float>(height()), 0.1, 50);
 
     m_time.start();
