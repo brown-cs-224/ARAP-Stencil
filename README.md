@@ -25,7 +25,7 @@ Your ARAP must implement at least the following features:
 
 * Initialize the shape **(X points)**
   * Determine one-ring neighbor of each vertices.
-  * Calculate the weight **w** for each vertices.
+  * Calculate the weight $w_i$ for each vertices.
 * Iterate between 
     * Determining the rotation transformation **R** for the moved point **p'** from original point **p** **(Y points)**.
     * Optimize the position **p'** given **p** and **R** so that the energy term is minimized **(Z points)**
