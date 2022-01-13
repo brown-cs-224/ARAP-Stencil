@@ -9,7 +9,7 @@
 
 ## Setup
 
-If you're using the provided stencil code, you'll need to copy over the `Eigen` directory from your path project. Note that `Eigen` is in `.gitignore`.
+If you're using the provided stencil code, you'll need to copy over the Eigen directory from your path project. Note that Eigen is in .gitignore.
 
 ## Relevant Reading
 
@@ -25,12 +25,12 @@ Your ARAP must implement at least the following features:
 
 * Initialize the shape **(X points)**
   * Determine one-ring neighbor of each vertices.
-  * Calculate the weight $`w_{ij}`$ for each vertices.
+  * Calculate the weight **w** for each vertices.
 * Iterate between 
-    * Determining the rotation transformation $`R_i`$ for the moved point $`p'_i`$ from original point $`p_i`$ **(Y points)**.
-    * Optimize the position $`p'_i`$ given $`p_i`$ and $`R_i`$ so that the energy term is minimized **(Z points)**
-        * Precompute matrix $`L_{ij}`$ from $`p_i`$ and $`w_{ij}`$. 
-        * Compute $`b_{i}`$ from initial position $`p_i`$, rotation matrix $`p_i`$, and constraint $`c_k`$.
+    * Determining the rotation transformation **R** for the moved point **p'** from original point **p** **(Y points)**.
+    * Optimize the position **p'** given **p** and **R** so that the energy term is minimized **(Z points)**
+        * Precompute matrix **L** from **p** and **w**. 
+        * Compute **b** from initial position **p**, rotation matrix **p**, and constraint **c**.
 * Video (described below) **(T points)**
 * README **(W points)**
 
@@ -84,10 +84,10 @@ Submit your branch of the Github classroom repository to the ARAP assignment.
 
 ## Simulation-Stencil
 
-Your job is to modify the code to load arbitrary meshes (e.g. the ones in `/meshes`), extract their surface meshes for visualization, and to compute simulation time step updates to the vertex positions of the mesh.
+Your job is to modify the code to load arbitrary meshes (e.g. the ones in /meshes), extract their surface meshes for visualization, and to compute simulation time step updates to the vertex positions of the mesh.
 
-You'll want to look at `src/arap.cpp` to get started, as that's the only file you need to change (although you'll probably make several of your own new files, too).
-You also might want to look at `src/view.cpp`, if you're interested in adding new interactivity/controls to the program.
+You'll want to look at src/arap.cpp to get started, as that's the only file you need to change (although you'll probably make several of your own new files, too).
+You also might want to look at src/view.cpp, if you're interested in adding new interactivity/controls to the program.
 
 Speaking of controls: the controls offered by the starter code are:
  * Move Camera: WASD
