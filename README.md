@@ -82,9 +82,7 @@ The starter project also contains some .obj files you can use to test your code.
 
 Submit your branch of the Github classroom repository to the ARAP assignment.
 
-## Simulation-Stencil
-
-Your job is to modify the code to load arbitrary meshes (e.g. the ones in /meshes), extract their surface meshes for visualization, and to compute simulation time step updates to the vertex positions of the mesh.
+## ARAP-Stencil
 
 You'll want to look at src/arap.cpp to get started, as that's the only file you need to change (although you'll probably make several of your own new files, too).
 You also might want to look at src/view.cpp, if you're interested in adding new interactivity/controls to the program.
