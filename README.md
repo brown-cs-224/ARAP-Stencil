@@ -1,4 +1,4 @@
-# Assignment 3: As-Rigid-As-Possible Implementation
+# Assignment 4: As-Rigid-As-Possible Surface Modeling
 
 
 **Released:** 3/18/22
