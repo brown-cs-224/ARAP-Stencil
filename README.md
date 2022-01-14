@@ -62,9 +62,12 @@ Finally, it should describe what features are demonstrated by the video(s) you�
 ### Extra Features
 Each of the following features that you implement will earn you extra points. The features are ordered roughly by difficulty of implementation.
 
+* Multithreading
+* Other form of parallelism
+* Improved initial guess
 * Improved Interactivity 
 * Multi-resolution
-* Non-manifold mesh
+
 
 **Any extra features you implement must be mentioned in your README and demonstrated in your video (you can submit multiple videos to show off different features, if that’s easier).**
 
@@ -72,11 +75,9 @@ Each of the following features that you implement will earn you extra points. Th
 
 Feel free to use this stencil code to get started.
 
-This includes a simple interactive 3D viewer for visualizing (and dynamically updating) triangular meshes, as well as several example meshes files you can load.
-
 This starter project is quite barebones: it provides code to load .obj files into a simple mesh representation (list of vertices and list of faces), as well as code to a simple interactive 3D viewer for visualizing (and dynamically updating) meshes. You’ll need to implement everything else: the data structure you’ll use to support efficient update.
 
-The starter project also contains some .obj files you can use to test your code. There are also tons of 3D model files available on the internet. A small amount of extra credit is available for finding and sharing a new (closed, manifold) .obj file with the class on Piazza **(2 points)**. To get extra credit, you’ll also need to post a video of your code operating on this mesh (any operation is fine).
+The starter project also contains some .obj files you can use to test your code. There are also tons of 3D model files available on the internet. 
 
 ### Submission Instructions
 
