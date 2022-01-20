@@ -72,7 +72,7 @@ Each of the following features that you implement will earn you extra points. Th
 
 Feel free to use this stencil code to get started.
 
-This starter project is quite barebones: it provides code to load .obj files into a simple mesh representation (list of vertices and list of faces), as well as code to a simple interactive 3D viewer for visualizing (and dynamically updating) meshes. You’ll need to implement everything else: the data structure you’ll use to support efficient update.
+This starter project is quite barebones: it provides code to load .obj files into a simple mesh representation (list of vertices and list of faces), as well as code to a simple interactive 3D viewer for visualizing (and dynamically updating) meshes. You’ll need to implement everything else: building the sparse linear system, any auxiliary data structures you need to do so, etc.
 
 The starter project also contains some .obj files you can use to test your code. There are also tons of 3D model files available on the internet. 
 
