@@ -52,8 +52,6 @@ void View::initializeGL()
     m_defaultShader = new Shader(":/shaders/shader.vert", ":/shaders/shader.frag");
     m_pointShader = new Shader(":/shaders/anchorPoint.vert", ":/shaders/anchorPoint.geom", ":/shaders/anchorPoint.frag");
 
-    m_arap.init();
-
     Eigen::Vector3f min, max, center, range, position;
     m_arap.init(min,max);
     center = (min + max) / 2.;
