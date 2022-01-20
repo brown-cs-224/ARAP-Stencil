@@ -52,12 +52,30 @@ void View::initializeGL()
     m_defaultShader = new Shader(":/shaders/shader.vert", ":/shaders/shader.frag");
     m_pointShader = new Shader(":/shaders/anchorPoint.vert", ":/shaders/anchorPoint.geom", ":/shaders/anchorPoint.frag");
 
+<<<<<<< HEAD
     m_arap.init();
 
     m_camera.setPosition(Eigen::Vector3f(0, 0, 10));
     m_camera.lookAt(Eigen::Vector3f(0, 5, -15), Eigen::Vector3f(0, 5, 0), Eigen::Vector3f(0, 1, 0));
     m_camera.setTarget(Eigen::Vector3f(0, 50, 0));
     m_camera.setPerspective(120, width() / static_cast<float>(height()), 0.1, 50);
+=======
+    Eigen::Vector3f min, max, center, range, position;
+    m_arap.init(min,max);
+    center = (min + max) / 2.;
+    range = max - min;
+
+    float yLength = std::max(range[0] / static_cast<float>(width()) * height(),range[1]);
+    float fovY = 120.;
+    float epsilon = 0.1;
+    float zLength = yLength / 2. / tanf(fovY / 2.) * (1. + epsilon);
+    Eigen::Vector3f near = center - range;
+    Eigen::Vector3f far = center + range;
+    position = center - Eigen::Vector3f::UnitZ() * zLength;
+
+    m_camera.lookAt(position, center, Eigen::Vector3f::UnitY());
+    m_camera.setPerspective(120, width() / static_cast<float>(height()), near[2], far[2]);
+>>>>>>> a52b7e6 (changes to view file)
 
     m_time.start();
     m_timer.start(1000 / 60);
