@@ -6,11 +6,6 @@
 **Due:** 4/4/22 @ 11:59pm EST
 
 
-
-## Setup
-
-If you're using the provided stencil code, you'll need to copy over the Eigen directory from your path project. Note that Eigen is in .gitignore.
-
 ## Relevant Reading
 
 - The lecture slides!
