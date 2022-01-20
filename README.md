@@ -62,12 +62,24 @@ Finally, it should describe what features are demonstrated by the video(s) you�
 ### Extra Features
 Each of the following features that you implement will earn you extra points. The features are ordered roughly by difficulty of implementation.
 
-* Multithreading
-* Other form of parallelism
-* Improved initial guess
-* Improved Interactivity 
-* Multi-resolution
-
+* Share on Slack a cool character-like (closed manifold) mesh that is fun to interact with **(2 points)**
+* Multithreading **(5 points)**
+  * Perform all non-UI computation (matrix construction, factorization, optimization) in a separate thread, so that user interactions remain smooth at all times.
+* Parallelize your code **(5 points)**
+  * There are multiple opportunities to exploit parallelism. For instance, you could solve the linear systems for each coordinate (x, y, z) in parallel. 
+* Improved interactivity **(8 points)**
+  * Implement some other way(s) to interact with the mesh beyond constraining/dragging single vertices.
+  * You might provide tools that allow for selecting and modifying continguous sets of vertices.
+  * You could also look into allowing direct specification of rotations in addition to translations (see the "Rotation-Propagation" paragraph on page 6 of the paper).
+* Affine progressive meshes **(10 points)**
+  * The ARAP optimization can become slow for very high-resolution meshes. To get around this problem, one can try to solve the optimization on a lower-resolution mesh, and then interpolate the result back to the high-resolution mesh.
+  * See Section 3.2 of [this paper](https://www.dgp.toronto.edu/~hsuehtil/pdf/cubeStyle_high.pdf) for one way to do this. You will need to re-use your mesh simplification code from the Mesh assignment.
+* Modified optimization objective **(15 points)**
+  * One can modify the basic ARAP optimization objective function to achieve other types of deformation.
+  * For example, [this paper](https://www.dgp.toronto.edu/~hsuehtil/pdf/cubeStyle_high.pdf) describes how adding an L1 regularizer to the objective produces 'cubified' meshes.
+  * Be aware that changing the objective may well change the method(s) you need to use to solve the resulting optimization problem.
+* Something else!
+  * This list is not meant to be exhaustive--if you’ve got another advanced feature in mind, go for it! (though you may want to ask a TA orr the instructor first if you’re concerned about whether the idea is feasible)
 
 **Any extra features you implement must be mentioned in your README and demonstrated in your video (you can submit multiple videos to show off different features, if that’s easier).**
 
