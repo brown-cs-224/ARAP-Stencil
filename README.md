@@ -18,7 +18,7 @@ In this assignment, you will implement a system for user-interactive deformation
 
 This assignment is out of **100 points**.
 
-Your ARAP must implement at least the following features:
+Your code must implement at least the following features:
 
 * Initialize the shape **(X points)**
   * Determine one-ring neighbor of each vertices.
@@ -36,23 +36,23 @@ To score **100/100** (or more!), you’ll need to implement some extra features.
 
 ### Video
 
-You must submit at least one video demonstrating your simulator in action. The video(s) must demonstrate all of the features you have implemented (including any extra features).
+You must submit at least one video demonstrating your system in action. The video(s) must demonstrate all of the features you have implemented (including any extra features).
 
 There are a few different ways you might go about making such videos:
 
-* Screen capture an OpenGL rendering of your simulation, e.g. using the interactive viewer code that we provide below (see “Resources”).
-* Export frame-by-frame meshes from your simulator and use your path tracer from Assignment 1 to render them.
+* Screen capture an OpenGL rendering of your program, e.g. using the interactive viewer code that we provide below (see “Resources”).
+* Export frame-by-frame meshes from your program and use your path tracer from Assignment 1 to render them.
 * Use some other modeling/animation/rendering software to render exported meshes (e.g. Maya, Blender).
 
-Particularly creative and/or nicely-rendered animations may receive extra credit. Think about interesting scenarios you could set up (i.e. ways to apply external forces to the mesh).
+Particularly creative and/or nicely-rendered animations may receive extra credit.
 Please use a standard format and codec for your video files (e.g. .mp4 with the H264 codec).
 To turn a set of frame images into a video, you can use [FFMPEG](https://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/).
 
 ### README
 
-You must also submit a Markdown README file. This file should describe how to run your ARAP (e.g. what command line arguments are needed?)
+You must also submit a Markdown README file. This file should describe how to run your program (e.g. what command line arguments are needed?)
 
-This file should also list all of the features your simulator implements.
+This file should also list all of the features your code implements.
 
 Finally, it should describe what features are demonstrated by the video(s) you’ve submitted. You should embed the videos into the README file.
 
