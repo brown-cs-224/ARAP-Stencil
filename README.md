@@ -76,6 +76,13 @@ This starter project is quite barebones: it provides code to load .obj files int
 
 The starter project also contains some .obj files you can use to test your code. There are also tons of 3D model files available on the internet. 
 
+### Implementation & Debugging Tips
+* **[MORE TIPS HERE]**
+* Use const and assert wherever possible.
+* Check for uninitialized values.
+* Use Qt Creator's debugger.
+* **REMINDER: Your code will run much faster if you compile in Release mode ;)**
+
 ### Submission Instructions
 
 Submit your branch of the Github classroom repository to the ARAP assignment.
