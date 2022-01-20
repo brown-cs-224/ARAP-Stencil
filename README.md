@@ -80,7 +80,7 @@ The starter project also contains some .obj files you can use to test your code.
 
 Submit your branch of the Github classroom repository to the ARAP assignment.
 
-## ARAP-Stencil
+## About the code
 
 You'll want to look at src/arap.cpp to get started, as that's the only file you need to change (although you'll probably make several of your own new files, too).
 You also might want to look at src/view.cpp, if you're interested in adding new interactivity/controls to the program.
