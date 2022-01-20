@@ -31,7 +31,7 @@ Your code must implement at least the following features:
 * Video (described below) **(T points)**
 * README **(W points)**
 
-Note that for simplicity, we only require the code to work on **manifold** meshes. Successfully implementing all of the requirements results in a total of **A/100 points**.
+Note that for simplicity, we only require the code to work on **closed, manifold** meshes. Successfully implementing all of the requirements results in a total of **A/100 points**.
 To score **100/100** (or more!), you’ll need to implement some extra features.
 
 ### Video
