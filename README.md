@@ -28,7 +28,7 @@ Your code must implement at least the following features:
     * Optimize the position **p'** given **p** and **R** so that the energy term is minimized **(Z points)**
         * Precompute matrix **L** from **p** and **w**. 
         * Compute **b** from initial position **p**, rotation matrix **p**, and constraint **c**.
-* Video (described below) **(T points)**
+* Videos (described below) **(T points)**
 * README **(W points)**
 
 Note that for simplicity, we only require the code to work on **closed, manifold** meshes. Successfully implementing all of the requirements results in a total of **A/100 points**.
