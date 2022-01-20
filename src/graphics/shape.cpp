@@ -63,6 +63,32 @@ void Shape::init(const std::vector<Eigen::Vector3f> &vertices, const std::vector
     faces.reserve(triangles.size());
 
     for(int s = 0; s < triangles.size() * 3; s+=3) faces.push_back(Eigen::Vector3i(s, s + 1, s + 2));
+
+    // Instantiate rings and cells
+    m_rings = std::vector<std::unordered_set<int>>(vertices.size());
+    m_cells = std::vector<std::vector<Cell>>(triangles.size());
+    std::map<std::pair<int,int>,std::vector<int>> edgeMap;
+    for(int s = 0; s < triangles.size(); s++) {
+        m_cells[s] = std::vector<Cell>();
+        Eigen::Vector3i face = triangles[s];
+        for (int i = 0; i < 3; i++) {
+            int min = std::min(face[(i+1)%3],face[(i+2)%3]);
+            int max = std::max(face[(i+1)%3],face[(i+2)%3]);
+            m_rings[face[i]].insert(min);
+            m_rings[face[i]].insert(max);
+
+            std::pair<int,int> key(min,max);
+            if (edgeMap.find(key) == edgeMap.end()) {
+                edgeMap[key] = std::vector<int>();
+            }
+            edgeMap[std::pair<int,int>(min,max)].push_back(s);
+        }
+    }
+    for (auto item : edgeMap) {
+        std::vector<int> adjacent = item.second;
+        m_cells[adjacent[0]].push_back(Cell(item.first,triangles[adjacent[1]]));
+        m_cells[adjacent[1]].push_back(Cell(item.first,triangles[adjacent[0]]));
+    }
     updateMesh(triangles, vertices, verts, normals, colors);
 
     glGenBuffers(1, &m_surfaceVbo);
@@ -141,6 +167,10 @@ std::vector<Eigen::Vector3f> Shape::getVertices(){
 const std::unordered_set<int>& Shape::getAnchors(){
     return m_anchors;
 };
+
+std::vector<Eigen::Vector3i> Shape::getTriangles() {return m_faces;}
+std::vector<std::vector<Cell>> Shape::getCells() {return m_cells;}
+std::vector<std::unordered_set<int>> Shape::getRings() {return m_rings;}
 
 
 int Shape::getClosestVertex(Eigen::Vector3f start, Eigen::Vector3f ray, float threshold){

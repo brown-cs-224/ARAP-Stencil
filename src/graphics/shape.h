@@ -13,6 +13,8 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix3f)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix3i)
 #include <Eigen/Dense>
 
+#define Cell std::pair<std::pair<int,int>,Eigen::Vector3i>
+
 class Shader;
 
 class Shape
@@ -33,6 +35,10 @@ public:
     bool getAnchorPos(int lastSelected, Eigen::Vector3f& pos,
                                  Eigen::Vector3f ray, Eigen::Vector3f start);
     std::vector<Eigen::Vector3f> getVertices();
+    std::vector<Eigen::Vector3i> getTriangles();
+    std::vector<std::vector<Cell>> getCells();
+    std::vector<std::unordered_set<int>> getRings();
+
     const std::unordered_set<int>& getAnchors();
 
 private:
@@ -52,6 +58,10 @@ private:
     std::vector<Eigen::Vector3f> m_vertices;
     std::vector<int> anchors;
     std::unordered_set<int> m_anchors;
+
+    std::vector<std::unordered_set<int>> m_rings;
+    std::vector<std::vector<Cell>> m_cells;
+
 //    Helper function
     Eigen::Vector3f getNormal(const Eigen::Vector3i& face);
     void updateMesh(const std::vector<Eigen::Vector3i> &triangles,
