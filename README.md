@@ -26,11 +26,11 @@ Your code must implement the basic algorithm described in the ARAP paper. Each t
     * Determine the one-ring neighbors of each vertex.
     * Calculate the cotangent weight **w** for each vertex.
     * Fill in the L matrix entries.
-  * Apply the user constraints by deleting rows/columns from L and updating the right-hand side of the equation accordingly.
+  * Apply the user constraints by deleting rows/columns from L.
   * Pre-compute the decomposition of the L matrix **(5 points)**. If you construct this decomposition on every iteration of optimization (instead of up-front), you will lose points for inefficiency.
 * Iterate between 
     * Determining the best-fit rotation transformation **R** for the moved point **p'** from original point **p** **(20 points)**.
-    * Optimize the position **p'** given **p** and **R** by solving a sparse linear system **(20 points)**
+    * Optimize the position **p'** given **p** and **R** by solving a sparse linear system. You will need to update the right-hand side of the equation accordingly.  **(20 points)**
 * Videos (described below) **(10 points)**
 * README **(5 points)**
 
