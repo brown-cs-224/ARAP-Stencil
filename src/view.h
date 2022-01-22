@@ -57,6 +57,7 @@ private:
     Shader *m_pointShader;
 
     int m_forward, m_sideways, m_vertical;
+    Eigen::Vector3f m_move;
 
     int m_lastX, m_lastY;
 

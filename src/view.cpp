@@ -63,7 +63,9 @@ void View::initializeGL()
     float zLength = yLength / 2. / tanf(fovY / 2.) * (1. + epsilon);
     Eigen::Vector3f near = center - range;
     Eigen::Vector3f far = center + range;
-    position = center - Eigen::Vector3f::UnitZ() * (zLength + 1);
+    position = center - Eigen::Vector3f::UnitZ() * (zLength + range[2]);
+
+    m_move = range * 0.8;
 
     m_camera.lookAt(position, center, Eigen::Vector3f::UnitY());
     m_camera.setPerspective(120, width() / static_cast<float>(height()), near[2], far[2]);
@@ -258,6 +260,7 @@ void View::tick()
     look.normalize();
     Eigen::Vector3f perp(-look.z(), 0, look.x());
     Eigen::Vector3f moveVec = m_forward * look + m_sideways * perp + m_vertical * Eigen::Vector3f::UnitY();
+    moveVec = moveVec.cwiseProduct(m_move);
     moveVec *= seconds;
     m_camera.move(moveVec);
 

@@ -18,12 +18,13 @@ void ARAP::init(Eigen::Vector3f &min, Eigen::Vector3f &max)
     std::vector<Vector3f> vertices;
     std::vector<Vector3f> normals;
     std::vector<Vector3i> tets;
-    if(MeshLoader::loadTriMesh("/Users/gene/Desktop/arap/meshes/cow.obj", vertices, normals,tets)) {
+    if(MeshLoader::loadTriMesh("/Users/blinnbryce/Documents/GitHub/ARAP-stencil/meshes/cow.obj", vertices, normals,tets)) {
         m_shape.init(vertices, tets);
     }
     
     MatrixX3f all_vertices = MatrixX3f(vertices.size(),3);
     std::vector<Vector3d> double_verts;
+    int i = 0;
     for(auto particle: vertices) {
         double_verts.push_back(Vector3d((double)particle[0], (double)particle[1], (double)particle[2]));
         all_vertices.row(i) = particle;
