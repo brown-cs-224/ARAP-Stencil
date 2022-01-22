@@ -98,6 +98,8 @@ The starter project also contains some .obj files you can use to test your code.
 * Use const and assert wherever possible.
 * Check for uninitialized values.
 * Use Qt Creator's debugger.
+* The cotangent function can be negative, be sure to use the **positive** cotangent weights (the absolute value of the cotangent).
+* Verify that your L matrix is **Positive Semi-Definite** (has eigenvalues and a determinant greater than or equal to zero)
 * **REMINDER: Your code will run much faster if you compile in Release mode ;)**
 
 ### Submission Instructions
