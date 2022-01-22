@@ -42,8 +42,8 @@ public:
    void setWeights();
 
    Eigen::SparseMatrix<float> getIdReduction(std::unordered_set<int> anchors);
-   Eigen::SparseMatrix<float> getUnconstrainedWeights(std::unordered_set<int> anchors);
-   Eigen::MatrixX3f getCMatrix(std::vector<Eigen::Vector3f> v_prime, std::unordered_set<int> anchors);
+   Eigen::SparseMatrix<float> getConstrainedL(std::unordered_set<int> anchors, Eigen::SparseMatrix<float> L);
+   Eigen::MatrixX3f getCMatrix(std::vector<Eigen::Vector3f> v_prime, std::unordered_set<int> anchors, Eigen::SparseMatrix<float> L);
    std::vector<Eigen::Matrix3f> getRotations(std::vector<Eigen::Vector3f> v_prime);
    Eigen::MatrixX3f getBMatrix(std::vector<Eigen::Matrix3f> rotations, std::unordered_set<int> anchors);
 private:

@@ -60,6 +60,8 @@ private:
 
     int m_lastX, m_lastY;
 
+    Eigen::Vector3f m_move;
+
     bool m_capture;
 
     int m_lastSelected = -1;

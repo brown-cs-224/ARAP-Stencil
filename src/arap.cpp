@@ -15,8 +15,10 @@ void ARAP::init(Eigen::Vector3f &min, Eigen::Vector3f &max)
     std::vector<Vector3f> vertices;
     std::vector<Vector3f> normals;
     std::vector<Vector3i> tets;
-    if(MeshLoader::loadTriMesh("/Users/blinnbryce/Documents/GitHub/arap/meshes/sphere.obj", vertices, normals,tets)) {
+    if(MeshLoader::loadTriMesh("/Users/blinnbryce/Documents/GitHub/arap/meshes/armadillo.obj", vertices, normals,tets)) {
         m_shape.init(vertices, tets);
+    } else {
+        exit(1);
     }
     std::vector<Vector3d> double_verts;
 
@@ -30,7 +32,7 @@ void ARAP::init(Eigen::Vector3f &min, Eigen::Vector3f &max)
     min = all_vertices.colwise().minCoeff();
     max = all_vertices.colwise().maxCoeff();
 
-    m_weights = Eigen::SparseMatrix<float>(vertices.size(),vertices.size());
+    m_weights = SparseMatrix<float>(vertices.size(),vertices.size());
     setWeights();
 }
 
@@ -55,15 +57,13 @@ void ARAP::setWeights() {
             float cos_alpha = innerCos(vertices[edge.first],vertices[a],vertices[edge.second]);
             float cos_beta = innerCos(vertices[edge.first],vertices[b],vertices[edge.second]);
 
-            float weight_alpha = cos_alpha / sqrt(1 - cos_alpha * cos_alpha);
-            float weight_beta = cos_beta / sqrt(1 - cos_beta * cos_beta);
+            float weight_alpha = abs(cos_alpha) / sqrt(1 - cos_alpha * cos_alpha);
+            float weight_beta = abs(cos_beta) / sqrt(1 - cos_beta * cos_beta);
             float weight = (weight_alpha + weight_beta) / 2.;
             if (abs(weight) < 1E-6) continue;
 
-            triplets.push_back(Triplet<float>(edge.first,edge.second,-weight));
-            triplets.push_back(Triplet<float>(edge.second,edge.first,-weight));
-            triplets.push_back(Triplet<float>(edge.first,edge.first,weight));
-            triplets.push_back(Triplet<float>(edge.second,edge.second,weight));
+            triplets.push_back(Triplet<float>(edge.first,edge.second,weight));
+            triplets.push_back(Triplet<float>(edge.second,edge.first,weight));
             visited[edge.first].insert(edge.second);
         }
     }
@@ -83,12 +83,12 @@ SparseMatrix<float> ARAP::getIdReduction(std::unordered_set<int> anchors) {
     return idReduction;
 }
 
-SparseMatrix<float> ARAP::getUnconstrainedWeights(std::unordered_set<int> anchors) {
+SparseMatrix<float> ARAP::getConstrainedL(std::unordered_set<int> anchors, SparseMatrix<float> L) {
     SparseMatrix<float> idReduction = getIdReduction(anchors);
-    return idReduction * m_weights * idReduction.transpose();
+    return idReduction * L * idReduction.transpose();
 }
 
-MatrixX3f ARAP::getCMatrix(std::vector<Vector3f> v_prime, std::unordered_set<int> anchors) {
+MatrixX3f ARAP::getCMatrix(std::vector<Vector3f> v_prime, std::unordered_set<int> anchors, SparseMatrix<float> L) {
     int nVertices = m_shape.getVertices().size();
     MatrixX3f P_anchor = MatrixX3f::Zero(nVertices,3);
     for (int i = 0; i < nVertices; i++) {
@@ -96,7 +96,7 @@ MatrixX3f ARAP::getCMatrix(std::vector<Vector3f> v_prime, std::unordered_set<int
         P_anchor.row(i) = v_prime[i];
     }
     SparseMatrix<float> idReduction = getIdReduction(anchors);
-    return idReduction * m_weights * P_anchor;
+    return idReduction * L * P_anchor;
 }
 
 std::vector<Matrix3f> ARAP::getRotations(std::vector<Vector3f> v_prime) {
@@ -130,7 +130,9 @@ std::vector<Matrix3f> ARAP::getRotations(std::vector<Vector3f> v_prime) {
 
         JacobiSVD<Matrix3f> svd(S, ComputeFullU | ComputeFullV);
         Matrix3f R = svd.matrixV() * svd.matrixU().transpose();
-        R *= R.determinant() / abs(R.determinant());
+        R = (R.array().abs() < 1e-5).select(0.,R);
+        R /= R.determinant();
+
         rotations.push_back(R);
     }
     return rotations;
@@ -139,7 +141,6 @@ std::vector<Matrix3f> ARAP::getRotations(std::vector<Vector3f> v_prime) {
 MatrixX3f ARAP::getBMatrix(std::vector<Matrix3f> rotations, std::unordered_set<int> anchors) {
     std::vector<Vector3f> v = m_shape.getVertices();
     std::vector<std::unordered_set<int>> rings = m_shape.getRings();
-
 
     MatrixX3f B(v.size() - anchors.size(),3);
     int idx = 0;
@@ -151,15 +152,16 @@ MatrixX3f ARAP::getBMatrix(std::vector<Matrix3f> rotations, std::unordered_set<i
         for (int j : ring) {
             Vector3f r_e_ij = (rotations[i] + rotations[j]) / 2. * (v[i] - v[j]);
 
-            for (int idx = 0; idx < 3; idx++) {
-                if (abs(r_e_ij[idx]) < 1E-6) continue;
-                triplets.push_back(Triplet<float>(j,idx,r_e_ij[idx]));
+            for (int k = 0; k < 3; k++) {
+                if (abs(r_e_ij[k]) < 1E-6) continue;
+                triplets.push_back(Triplet<float>(j,k,r_e_ij[k]));
             }
         }
+
         SparseMatrix<float> RP(v.size(),3);
         RP.setFromTriplets(triplets.begin(),triplets.end());
 
-        B.row(idx) = -m_weights.row(i) * RP;
+        B.row(idx) = m_weights.row(i) * RP;
         idx++;
     }
     return B;
@@ -172,31 +174,43 @@ void ARAP::move(int vertex, Vector3f pos)
 
     //TODO: implement ARAP here
     new_vertices[vertex] = pos;
-    SparseMatrix<float> uW = getUnconstrainedWeights(anchors);
-    SimplicialLDLT<SparseMatrix<float>> solver(uW);
+    SparseMatrix<float> L(new_vertices.size(),new_vertices.size());
+    std::vector<Triplet<float>> triplets;
+    VectorXf diagonal = m_weights * VectorXf::Ones(L.cols());
+    for (int i = 0; i < L.rows(); i++) triplets.push_back(Triplet<float>(i,i,diagonal[i]));
+    L.setFromTriplets(triplets.begin(),triplets.end());
+    L -= m_weights;
+
     MatrixX3f X(new_vertices.size()-anchors.size(),3), B(new_vertices.size()-anchors.size(),3), C(new_vertices.size()-anchors.size(),3);
-    C = getCMatrix(new_vertices,anchors);
+    C = getCMatrix(new_vertices,anchors,L);
+
+    SparseMatrix<float> uL = getConstrainedL(anchors,L);
+    SimplicialLDLT<SparseMatrix<float>> solver(uL);
 
     // Iteration
     float prev = INFINITY;
-    float curr;
+    float curr = 0.;
 
     for (int its = 0; its < MAXITERS; its++) {
         std::vector<Matrix3f> rotations = getRotations(new_vertices);
         B = getBMatrix(rotations,anchors) - C;
         X = solver.solve(B);
-        X = (X.array().abs()  < 1e-6).select(0.,X);
+        X = (X.array().abs() < 1e-5).select(0.,X);
 
         int idx = 0;
-        for (int i = 0; i < new_vertices.size(); i++) if (anchors.find(i) == anchors.end()) {new_vertices[i]= X.row(idx); idx++;}
+        for (int i = 0; i < new_vertices.size(); i++) {
+            if (anchors.find(i) != anchors.end()) continue;
+            curr += (new_vertices[i] - X.row(idx).transpose()).norm();
+            new_vertices[i]= X.row(idx);
+            idx++;
+        }
 
-        curr = (uW * X - B).cwiseAbs().sum() / (new_vertices.size()-anchors.size());
         if (((prev - curr) < ATOL) || (curr < BTOL)) break;
         prev = curr;
+        curr = 0;
     }
 
     m_shape.setVertices(new_vertices);
-    setWeights();
 }
 //////////////////// No need to edit after this /////////////////////////
 int ARAP::getClosestVertex(Eigen::Vector3f start, Eigen::Vector3f ray){
