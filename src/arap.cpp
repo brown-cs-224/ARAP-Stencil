@@ -9,7 +9,7 @@ using namespace Eigen;
 
 ARAP::ARAP(){}
 
-void ARAP::init()
+void ARAP::init(Eigen::Vector3f &min, Eigen::Vector3f &max)
 {
     // STUDENTS: This code loads up the tetrahedral mesh in 'example-meshes/single-tet.mesh'
     //    (note: your working directory must be set to the root directory of the starter code
@@ -21,11 +21,16 @@ void ARAP::init()
     if(MeshLoader::loadTriMesh("/Users/gene/Desktop/arap/meshes/cow.obj", vertices, normals,tets)) {
         m_shape.init(vertices, tets);
     }
-    //m_shape.setModelMatrix(Affine3f(Eigen::Translation3f(0, 5, 0)));
+    
+    MatrixX3f all_vertices = MatrixX3f(vertices.size(),3);
     std::vector<Vector3d> double_verts;
     for(auto particle: vertices) {
         double_verts.push_back(Vector3d((double)particle[0], (double)particle[1], (double)particle[2]));
+        all_vertices.row(i) = particle;
+        i++;
     }
+    min = all_vertices.colwise().minCoeff();
+    max = all_vertices.colwise().maxCoeff();
 }
 
 
