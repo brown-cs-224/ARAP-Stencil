@@ -11,7 +11,7 @@ class ARAP
 public:
     ARAP();
 
-    void init();
+    void init(Eigen::Vector3f &min, Eigen::Vector3f &max);
     void draw(Shader *shader, GLenum mode);
     void select(Shader *shader, int vertex);
     void toggleWire();
