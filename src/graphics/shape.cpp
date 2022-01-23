@@ -41,9 +41,9 @@ void Shape::updateMesh(const std::vector<Eigen::Vector3i> &triangles,
             verts.push_back(vertices[v]);
 
             if (m_anchors.find(v) == m_anchors.end()){
-                colors.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
+                colors.push_back(Eigen::Vector3f(1.f,0.f,0.f));
             } else {
-                colors.push_back(Eigen::Vector3f(0.f, 0.f, 1.f));
+                colors.push_back(Eigen::Vector3f(0.f, 1.f - m_green, 1.f - m_blue));
             }
         }
     }
@@ -97,10 +97,10 @@ void Shape::init(const std::vector<Eigen::Vector3f> &vertices, const std::vector
     m_numSurfaceVertices = faces.size() * 3;
     m_verticesSize = vertices.size();
     m_faces = triangles;
-    m_red = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    m_blue = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    m_green = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    m_alpha = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    m_red = 0.5f + 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    m_blue = 0.5f + 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    m_green = 0.5f + 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    m_alpha = 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
 
 

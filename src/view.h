@@ -58,6 +58,7 @@ private:
 
     int m_forward, m_sideways, m_vertical;
     Eigen::Vector3f m_move;
+    float m_vSize;
 
     int m_lastX, m_lastY;
 

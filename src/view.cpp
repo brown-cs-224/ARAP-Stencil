@@ -57,6 +57,8 @@ void View::initializeGL()
     center = (min + max) / 2.;
     range = max - min;
 
+    m_vSize = range.maxCoeff() * 7.5f;
+
     float yLength = std::max(range[0] / static_cast<float>(width()) * height(),range[1]);
     float fovY = 120.;
     float epsilon = 0.1;
@@ -91,6 +93,7 @@ void View::paintGL()
     m_pointShader->bind();
     m_pointShader->setUniform("m", model);
     m_pointShader->setUniform("vp", mvp);
+    m_pointShader->setUniform("vSize", m_vSize);
     m_pointShader->setUniform("width", width());
     m_pointShader->setUniform("height", height());
     m_arap.draw(m_pointShader, GL_POINTS);
