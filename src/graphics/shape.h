@@ -32,7 +32,8 @@ public:
     int getClosestVertex(Eigen::Vector3f start, Eigen::Vector3f ray, float threshold = 0.05);
     bool getAnchorPos(int lastSelected, Eigen::Vector3f& pos,
                                  Eigen::Vector3f ray, Eigen::Vector3f start);
-    std::vector<Eigen::Vector3f> getVertices();
+    const std::vector<Eigen::Vector3f>& getVertices();
+    const std::vector<Eigen::Vector3f>& getFaces();
     const std::unordered_set<int>& getAnchors();
 
 private:

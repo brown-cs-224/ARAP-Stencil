@@ -134,7 +134,12 @@ bool Shape::getAnchorPos(int lastSelected, Eigen::Vector3f& pos,
     return isAnchor;
 }
 
-std::vector<Eigen::Vector3f> Shape::getVertices(){
+const std::vector<Eigen::Vector3f>& Shape::getVertices(){
+    return m_vertices;
+}
+
+
+const std::vector<Eigen::Vector3f>& Shape::getFaces(){
     return m_vertices;
 }
 

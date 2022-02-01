@@ -11,14 +11,14 @@ ARAP::ARAP(){}
 
 void ARAP::init(Eigen::Vector3f &min, Eigen::Vector3f &max)
 {
-    // STUDENTS: This code loads up the tetrahedral mesh in 'example-meshes/single-tet.mesh'
+    // STUDENTS: This code loads up the tetrahedral mesh in 'meshes/single-tet.obj'
     //    (note: your working directory must be set to the root directory of the starter code
     //    repo for this file to load correctly). You'll probably want to instead have this code
     //    load up a tet mesh based on e.g. a file path specified with a command line argument.
     std::vector<Vector3f> vertices;
     std::vector<Vector3f> normals;
     std::vector<Vector3i> tets;
-    if(MeshLoader::loadTriMesh("/Users/blinnbryce/Documents/GitHub/ARAP-Stencil/meshes/armadillo.obj", vertices, normals, tets)) {
+    if(MeshLoader::loadTriMesh("meshes/armadillo.obj", vertices, normals, tets)) {
         m_shape.init(vertices, tets);
     }
     
