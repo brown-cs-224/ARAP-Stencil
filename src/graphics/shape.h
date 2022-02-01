@@ -33,7 +33,7 @@ public:
     bool getAnchorPos(int lastSelected, Eigen::Vector3f& pos,
                                  Eigen::Vector3f ray, Eigen::Vector3f start);
     const std::vector<Eigen::Vector3f>& getVertices();
-    const std::vector<Eigen::Vector3f>& getFaces();
+    const std::vector<Eigen::Vector3i>& getFaces();
     const std::unordered_set<int>& getAnchors();
 
 private:
