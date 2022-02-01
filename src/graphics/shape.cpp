@@ -140,7 +140,7 @@ const std::vector<Eigen::Vector3f>& Shape::getVertices(){
 
 
 const std::vector<Eigen::Vector3f>& Shape::getFaces(){
-    return m_vertices;
+    return m_Faces;
 }
 
 const std::unordered_set<int>& Shape::getAnchors(){
