@@ -94,7 +94,6 @@ The starter project also contains some .obj files you can use to test your code.
 **Solving sparse linear systems**: Eigen has code to help you with this. You'll want to look at [this page](https://eigen.tuxfamily.org/dox/group__TopicSparseSystems.html) in the Eigen documentation. We recommend using either the `SimplicialLLT` or `SimplicialLDLT` solvers, as they are specialized to be faster for symmetric positive definite (SPD) matrices (which your L matrix is).
 
 ### Implementation & Debugging Tips
-* **[MORE TIPS HERE]**
 * Use const and assert wherever possible.
 * Check for uninitialized values.
 * Use Qt Creator's debugger.
