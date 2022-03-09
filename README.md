@@ -51,14 +51,6 @@ Particularly creative and/or nicely-rendered animations may receive extra credit
 Please use a standard format and codec for your video files (e.g. .mp4 with the H264 codec).
 To turn a set of frame images into a video, you can use [FFMPEG](https://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/).
 
-
-https://user-images.githubusercontent.com/39507598/157359369-71d9a28f-0e49-4f83-880e-0119e0161f4f.mov
-
-https://user-images.githubusercontent.com/39507598/157359482-750e4c76-daf6-4b7f-9611-a365cc6f9aa2.mov
-
-https://user-images.githubusercontent.com/39507598/157359737-86bfc3a5-c82b-4417-86d6-3e31a4b65dbe.mov
-
-
 ### README
 
 You must also submit a Markdown README file. This file should describe how to run your program (e.g. what command line arguments are needed?)
@@ -126,3 +118,10 @@ Speaking of controls: the controls offered by the starter code are:
 
 
 ## Example Video
+
+
+https://user-images.githubusercontent.com/39507598/157359369-71d9a28f-0e49-4f83-880e-0119e0161f4f.mov
+
+https://user-images.githubusercontent.com/39507598/157359482-750e4c76-daf6-4b7f-9611-a365cc6f9aa2.mov
+
+https://user-images.githubusercontent.com/39507598/157359737-86bfc3a5-c82b-4417-86d6-3e31a4b65dbe.mov
