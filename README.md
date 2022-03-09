@@ -1,7 +1,7 @@
 # Assignment 4: As-Rigid-As-Possible Surface Modeling (ARAP)
 
 
-**Released:** 3/18/22
+**Released:** 3/21/22
 
 **Due:** 4/4/22 @ 11:59pm EST
 
