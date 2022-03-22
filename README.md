@@ -99,6 +99,7 @@ The starter project also contains some .obj files you can use to test your code.
 * Use Qt Creator's debugger.
 * The cotangent function can be negative, be sure to use the **positive** cotangent weights (the absolute value of the cotangent).
 * Verify that your L matrix is **Positive Semi-Definite** (has eigenvalues and a determinant greater than or equal to zero)
+* We provided helper functions in graphics/shape.h, all the public member function should be enough for you to complete the minimum requirement without having to modify our helper classes. 
 * **REMINDER: Your code will run much faster if you compile in Release mode ;)**
 
 ### Submission Instructions
