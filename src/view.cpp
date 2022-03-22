@@ -109,8 +109,8 @@ void View::resizeGL(int w, int h)
 
 Eigen::Vector3f View::transformToWorldRay(int x, int y) {
     Eigen::Vector4f clipCoords = Eigen::Vector4f(
-        (float(x) / m_window->width()) * 2.f - 1.f,
-        1.f - (float(y) / m_window->height()) * 2.f, -1.f, 1.f
+        (float(x) / width()) * 2.f - 1.f,
+        1.f - (float(y) / height()) * 2.f, -1.f, 1.f
     );
 
     Eigen::Vector4f transformed_coords = m_camera.getProjection().inverse() * clipCoords;
