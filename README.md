@@ -30,11 +30,11 @@ Your code must implement the basic algorithm described in the ARAP paper. Each t
   * Pre-compute the decomposition of the L matrix **(5 points)**. If you construct this decomposition on every iteration of optimization (instead of up-front), you will lose points for inefficiency.
 * Iterate between 
     * Determining the best-fit rotation transformation **R** for the moved point **p'** from original point **p** **(20 points)**.
-    * Optimize the position **p'** given **p** and **R** by solving a sparse linear system. You will need to update the right-hand side of the equation accordingly.  **(20 points)**
+    * Optimize the position **p'** given **p** and **R** by solving a sparse linear system. You will need to update the right-hand side of the equation accordingly.  **(25 points)**
 * Videos (described below) **(10 points)**
 * README **(5 points)**
 
-Note that for simplicity, we only require the code to work on **closed, manifold** meshes. Successfully implementing all of the requirements results in a total of **90/100 points**.
+Note that for simplicity, we only require the code to work on **closed, manifold** meshes. Successfully implementing all of the requirements results in a total of **95/100 points**.
 To score **100/100** (or more!), youâ€™ll need to implement some extra features.
 
 ### Video
@@ -63,8 +63,6 @@ Finally, it should describe what features are demonstrated by the video(s) youâ€
 Each of the following features that you implement will earn you extra points. The features are ordered roughly by difficulty of implementation.
 
 * Share on Slack a cool character-like (closed manifold) mesh that is fun to interact with **(2 points)**
-* Multithreading **(5 points)**
-  * Perform all non-UI computation (matrix construction, factorization, optimization) in a separate thread, so that user interactions remain smooth at all times.
 * Parallelize your code **(5 points)**
   * There are multiple opportunities to exploit parallelism. For instance, you could solve the linear systems for each coordinate (x, y, z) in parallel. 
 * Improved interactivity **(8 points)**
