@@ -31,7 +31,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/mainwindow.cpp
     src/arap.cpp
-    src/view.cpp
+    src/glwidget.cpp
     src/graphics/camera.cpp
     src/graphics/GraphicsDebug.cpp
     src/graphics/MeshLoader.cpp
@@ -40,7 +40,7 @@ add_executable(${PROJECT_NAME}
 
     src/mainwindow.h
     src/arap.h
-    src/view.h
+    src/glwidget.h
     src/graphics/camera.h
     src/graphics/GraphicsDebug.h
     src/graphics/MeshLoader.h

@@ -13,7 +13,6 @@
 #include <QString>
 #include <QTextStream>
 #include <QFileInfo>
-#include <QGLWidget>
 #include <iostream>
 #include <set>
 

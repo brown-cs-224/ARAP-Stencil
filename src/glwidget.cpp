@@ -1,15 +1,15 @@
-#include "view.h"
-
-#include "viewformat.h"
+#include "glwidget.h"
 
 #include <QApplication>
 #include <QKeyEvent>
-#include <Eigen/StdVector>
 #include <iostream>
+
+#define SPEED 1.5
+#define ROTATE_SPEED 0.0025
 
 using namespace std;
 
-View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
+GLWidget::GLWidget(QWidget *parent) :
     m_window(parent->parentWidget()),
     m_time(), m_timer(),
     m_forward(), m_sideways(), m_vertical(),
@@ -29,14 +29,15 @@ View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(tick()));
 }
 
-View::~View()
+GLWidget::~GLWidget()
 {
     delete m_defaultShader;
     delete m_pointShader;
-
 }
 
-void View::initializeGL()
+// ================== Basic OpenGL Overrides
+
+void GLWidget::initializeGL()
 {
     glewExperimental = GL_TRUE;
     if(glewInit() != GLEW_OK) {
@@ -76,7 +77,7 @@ void View::initializeGL()
     m_timer.start(1000 / 60);
 }
 
-void View::paintGL()
+void GLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
@@ -100,27 +101,15 @@ void View::paintGL()
     m_pointShader->unbind();
 }
 
-void View::resizeGL(int w, int h)
+void GLWidget::resizeGL(int w, int h)
 {
     glViewport(0, 0, w, h);
     m_camera.setAspect(static_cast<float>(w) / h);
 }
 
+// ================== Event Listeners
 
-Eigen::Vector3f View::transformToWorldRay(int x, int y) {
-    Eigen::Vector4f clipCoords = Eigen::Vector4f(
-        (float(x) / width()) * 2.f - 1.f,
-        1.f - (float(y) / height()) * 2.f, -1.f, 1.f
-    );
-
-    Eigen::Vector4f transformed_coords = m_camera.getProjection().inverse() * clipCoords;
-    transformed_coords = Eigen::Vector4f(transformed_coords.x(), transformed_coords.y(), -1.f, 0.f);
-    transformed_coords = m_camera.getView().inverse() * transformed_coords;
-
-    return Eigen::Vector3f(transformed_coords.x(), transformed_coords.y(), transformed_coords.z()).normalized();
-}
-
-void View::mousePressEvent(QMouseEvent *event)
+void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     float x = event->x();
     float y = event->y();
@@ -148,10 +137,9 @@ void View::mousePressEvent(QMouseEvent *event)
     m_capture = true;
     m_lastX = event->x();
     m_lastY = event->y();
-
 }
 
-void View::mouseMoveEvent(QMouseEvent *event)
+void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_lastSelected != -1){
         Eigen::Vector3f ray = transformToWorldRay(event->x(), event->y());
@@ -176,25 +164,19 @@ void View::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void View::mouseReleaseEvent(QMouseEvent *)
+void GLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     m_capture = false;
 }
 
-void View::wheelEvent(QWheelEvent *event)
+void GLWidget::wheelEvent(QWheelEvent *event)
 {
-    float zoom = 1 - event->delta() * 0.1f / 120;
+    float zoom = 1 - event->pixelDelta().y() * 0.1f / 120.f;
     m_camera.zoom(zoom);
 }
 
-void View::keyPressEvent(QKeyEvent *event)
+void GLWidget::keyPressEvent(QKeyEvent *event)
 {
-    // Don't remove this -- helper code for key repeat events
-    if(event->isAutoRepeat()) {
-        keyRepeatEvent(event);
-        return;
-    }
-
     // Feel free to remove this
     if (event->key() == Qt::Key_Escape) QApplication::quit();
 
@@ -223,11 +205,7 @@ void View::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void View::keyRepeatEvent(QKeyEvent *)
-{
-}
-
-void View::keyReleaseEvent(QKeyEvent *event)
+void GLWidget::keyReleaseEvent(QKeyEvent *event)
 {
     // Don't remove this -- helper code for key repeat events
     if(event->isAutoRepeat()) {
@@ -254,7 +232,9 @@ void View::keyReleaseEvent(QKeyEvent *event)
     }
 }
 
-void View::tick()
+// ================== Physics Tick
+
+void GLWidget::tick()
 {
     float seconds = m_time.restart() * 0.001;
 
@@ -269,4 +249,17 @@ void View::tick()
 
     // Flag this view for repainting (Qt will call paintGL() soon after)
     update();
+}
+
+Eigen::Vector3f GLWidget::transformToWorldRay(int x, int y) {
+    Eigen::Vector4f clipCoords = Eigen::Vector4f(
+        (float(x) / width()) * 2.f - 1.f,
+        1.f - (float(y) / height()) * 2.f, -1.f, 1.f
+    );
+
+    Eigen::Vector4f transformed_coords = m_camera.getProjection().inverse() * clipCoords;
+    transformed_coords = Eigen::Vector4f(transformed_coords.x(), transformed_coords.y(), -1.f, 0.f);
+    transformed_coords = m_camera.getView().inverse() * transformed_coords;
+
+    return Eigen::Vector3f(transformed_coords.x(), transformed_coords.y(), transformed_coords.z()).normalized();
 }

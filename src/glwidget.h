@@ -1,28 +1,25 @@
-#ifndef VIEW_H
-#define VIEW_H
+#pragma once
+
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
+#endif
 
 #include "arap.h"
 #include "graphics/camera.h"
-#include "graphics/Shader.h"
+#include "graphics/shader.h"
 
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <QElapsedTimer>
 #include <QTimer>
 #include <memory>
 
-/**
- * This is similar to your "CS1971FrontEnd" class. Here you will receive all of the input events
- * to forward to your game.
- *
- * @brief The View class
- */
-class View : public QGLWidget
+class GLWidget : public QOpenGLWidget
 {
     Q_OBJECT
 
 public:
-    View(QWidget *parent);
-    ~View();
+    GLWidget(QWidget *parent = nullptr);
+    ~GLWidget();
 
 private:
     static const int FRAMES_TO_AVERAGE = 30;
@@ -52,7 +49,7 @@ private:
     GLuint frameTexture;
 
     ARAP m_arap;
-    Camera m_camera;
+    Camera     m_camera;
     Shader *m_defaultShader;
     Shader *m_pointShader;
 
@@ -67,8 +64,7 @@ private:
     int m_lastSelected = -1;
 
 private slots:
+
+    // Physics Tick
     void tick();
 };
-
-#endif // VIEW_H
-
