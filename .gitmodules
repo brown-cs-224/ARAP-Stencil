@@ -1,3 +1,3 @@
 [submodule "Eigen"]
- 	path = Eigen
- 	url = https://github.com/brown-cs-224/Eigen
+	path = Eigen
+	url = https://github.com/brown-cs-224/Eigen
