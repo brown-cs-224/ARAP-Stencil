@@ -83,7 +83,7 @@ Each of the following features that you implement will earn you extra points. Th
 
 ### Resources
 
-Feel free to use this stencil code to get started.
+Feel free to use this stencil code to get started. After cloning the repo locally, you'll need to run `git submodule update --init --recursive` to update the Eigen submodule.
 
 This starter project is quite barebones: it provides code to load .obj files into a simple mesh representation (list of vertices and list of faces), as well as code to a simple interactive 3D viewer for visualizing (and dynamically updating) meshes. You’ll need to implement everything else: building the sparse linear system, any auxiliary data structures you need to do so, etc.
 
