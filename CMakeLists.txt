@@ -46,11 +46,14 @@ add_executable(${PROJECT_NAME}
     src/graphics/meshloader.h
     src/graphics/shader.h
     src/graphics/shape.h
+
+    util/tiny_obj_loader.h
+    util/unsupportedeigenthing/OpenGLSupport
 )
 
 # GLEW: this creates its library and allows you to `#include "GL/glew.h"`
-add_library(StaticGLEW STATIC libs/glew/src/glew.c)
-include_directories(${PROJECT_NAME} PRIVATE libs/glew/include)
+add_library(StaticGLEW STATIC glew/src/glew.c)
+include_directories(${PROJECT_NAME} PRIVATE glew/include)
 
 # Specifies libraries to be linked (Qt components, glew, etc)
 target_link_libraries(${PROJECT_NAME} PRIVATE
