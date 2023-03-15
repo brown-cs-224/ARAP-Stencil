@@ -6,63 +6,29 @@
 using namespace Eigen;
 using namespace std;
 
-Shape::Shape()
-    :
-      m_numSurfaceVertices(),
-      m_verticesSize(),
-      m_modelMatrix(Eigen::Matrix4f::Identity()),
-      m_wireframe(false)
-{
-}
+// ================== Constructor
 
+Shape::Shape() :
+    m_numSurfaceVertices(),
+    m_verticesSize(),
+    m_modelMatrix(Matrix4f::Identity()),
+    m_wireframe(false)
+{}
 
-Eigen::Vector3f Shape::getNormal(const Eigen::Vector3i& face){
-    Vector3f& v1 = m_vertices[face[0]];
-    Vector3f& v2 = m_vertices[face[1]];
-    Vector3f& v3 = m_vertices[face[2]];
-    Vector3f e1 = v2 - v1;
-    Vector3f e2 = v3 - v1;
-    Vector3f n = e1.cross(e2);
-    return  n/n.norm();
-}
+// ================== Initialization and Updating
 
-void Shape::updateMesh(const std::vector<Eigen::Vector3i> &triangles,
-                       const std::vector<Eigen::Vector3f> &vertices,
-                       std::vector<Eigen::Vector3f>& verts,
-                       std::vector<Eigen::Vector3f>& normals,
-                       std::vector<Eigen::Vector3f>& colors){
-    verts.reserve(triangles.size() * 3);
-    normals.reserve(triangles.size() * 3);
-    for(const Eigen::Vector3i& f : triangles) {
-        Vector3f n = getNormal(f);
-
-        for (auto& v: {f[0], f[1], f[2]}) {
-            normals.push_back(n);
-            verts.push_back(vertices[v]);
-
-            if (m_anchors.find(v) == m_anchors.end()){
-                colors.push_back(Eigen::Vector3f(1.f,0.f,0.f));
-            } else {
-                colors.push_back(Eigen::Vector3f(0.f, 1.f - m_green, 1.f - m_blue));
-            }
-        }
-    }
-}
-
-
-
-void Shape::init(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3i> &triangles)
+void Shape::init(const vector<Vector3f> &vertices, const vector<Vector3i> &triangles)
 {
     m_vertices.clear();
     copy(vertices.begin(), vertices.end(), back_inserter(m_vertices));
 
-    std::vector<Eigen::Vector3f> verts;
-    std::vector<Eigen::Vector3f> normals;
-    std::vector<Eigen::Vector3f> colors;
-    std::vector<Eigen::Vector3i> faces;
+    vector<Vector3f> verts;
+    vector<Vector3f> normals;
+    vector<Vector3f> colors;
+    vector<Vector3i> faces;
     faces.reserve(triangles.size());
 
-    for(int s = 0; s < triangles.size() * 3; s+=3) faces.push_back(Eigen::Vector3i(s, s + 1, s + 2));
+    for (int s = 0; s < triangles.size() * 3; s+=3) faces.push_back(Vector3i(s, s + 1, s + 2));
     updateMesh(triangles, vertices, verts, normals, colors);
 
     glGenBuffers(1, &m_surfaceVbo);
@@ -97,21 +63,20 @@ void Shape::init(const std::vector<Eigen::Vector3f> &vertices, const std::vector
     m_numSurfaceVertices = faces.size() * 3;
     m_verticesSize = vertices.size();
     m_faces = triangles;
-    m_red = 0.5f + 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    m_blue = 0.5f + 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    m_red   = 0.5f + 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    m_blue  = 0.5f + 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     m_green = 0.5f + 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     m_alpha = 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
 
-
-void Shape::setVertices(const std::vector<Eigen::Vector3f> &vertices)
+void Shape::setVertices(const vector<Vector3f> &vertices)
 {
     m_vertices.clear();
     copy(vertices.begin(), vertices.end(), back_inserter(m_vertices));
 
-    std::vector<Eigen::Vector3f> verts;
-    std::vector<Eigen::Vector3f> normals;
-    std::vector<Eigen::Vector3f> colors;
+    vector<Vector3f> verts;
+    vector<Vector3f> normals;
+    vector<Vector3f> colors;
 
     updateMesh(m_faces, vertices, verts, normals, colors);
 
@@ -123,55 +88,51 @@ void Shape::setVertices(const std::vector<Eigen::Vector3f> &vertices)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-bool Shape::getAnchorPos(int lastSelected, Eigen::Vector3f& pos,
-                                    Eigen::Vector3f ray, Eigen::Vector3f start){
-    bool isAnchor = m_anchors.find(lastSelected) != m_anchors.end();
-    if(isAnchor) {
-        Eigen::Vector3f oldPos = m_vertices[lastSelected];
-        Eigen::ParametrizedLine line = ParametrizedLine<float, 3>::Through(start, start+ray);
-        pos = line.projection(oldPos);
+// ================== Model Matrix
+
+void Shape::setModelMatrix(const Affine3f &model) { m_modelMatrix = model.matrix(); }
+
+// ================== Wireframe
+
+void Shape::toggleWireframe() { m_wireframe = !m_wireframe; }
+
+// ================== General Graphics Stuff
+
+void Shape::draw(Shader *shader, GLenum mode)
+{
+    Eigen::Matrix3f m3 = m_modelMatrix.topLeftCorner(3, 3);
+    Eigen::Matrix3f inverseTransposeModel = m3.inverse().transpose();
+
+    switch(mode) {
+    case GL_TRIANGLES:
+    {
+        shader->setUniform("wire", 0);
+        shader->setUniform("model", m_modelMatrix);
+        shader->setUniform("inverseTransposeModel", inverseTransposeModel);
+        shader->setUniform("red",   m_red);
+        shader->setUniform("green", m_green);
+        shader->setUniform("blue",  m_blue);
+        shader->setUniform("alpha", m_alpha);
+        glBindVertexArray(m_surfaceVao);
+        glDrawElements(mode, m_numSurfaceVertices, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
+        glBindVertexArray(0);
+        break;
     }
-    return isAnchor;
-}
-
-const std::vector<Eigen::Vector3f>& Shape::getVertices(){
-    return m_vertices;
-}
-
-
-const std::vector<Eigen::Vector3i>& Shape::getFaces(){
-    return m_faces;
-}
-
-const std::unordered_set<int>& Shape::getAnchors(){
-    return m_anchors;
-};
-
-
-int Shape::getClosestVertex(Eigen::Vector3f start, Eigen::Vector3f ray, float threshold){
-    int closest_vertex = -1;
-    int i = 0;
-    float dist = std::numeric_limits<float>::max();
-    Eigen::ParametrizedLine line = ParametrizedLine<float, 3>::Through(start, start + ray);
-    for(auto& v : m_vertices) {
-        float d = line.distance(v);
-        if(d<dist) {
-            dist = d;
-            closest_vertex = i;
-        }
-        i++;
+    case GL_POINTS:
+    {
+        shader->setUniform("model", m_modelMatrix);
+        shader->setUniform("inverseTransposeModel", inverseTransposeModel);
+        glBindVertexArray(m_surfaceVao);
+        glDrawElements(mode, m_numSurfaceVertices, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
+        glBindVertexArray(0);
+        break;
     }
-
-    if(dist >= threshold) {
-        closest_vertex = -1;
     }
-
-    return closest_vertex;
 }
 
-void Shape::select(Shader *shader, int closest_vertex) {
-
-    if(m_anchors.find(closest_vertex) != m_anchors.end()) {
+void Shape::select(Shader *shader, int closest_vertex)
+{
+    if (m_anchors.find(closest_vertex) != m_anchors.end()) {
         m_anchors.erase(closest_vertex);
     } else {
         m_anchors.insert(closest_vertex);
@@ -188,40 +149,84 @@ void Shape::select(Shader *shader, int closest_vertex) {
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * verts.size() * 3, sizeof(float) * normals.size() * 3, static_cast<const void *>(normals.data()));
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3)), sizeof(float) * colors.size() * 3, static_cast<const void *>(colors.data()));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 }
 
-
-void Shape::setModelMatrix(const Eigen::Affine3f &model)
+int Shape::getClosestVertex(Vector3f start, Vector3f ray, float threshold)
 {
-    m_modelMatrix = model.matrix();
-}
+    int closest_vertex = -1;
+    int i = 0;
+    float dist = numeric_limits<float>::max();
+    ParametrizedLine line = ParametrizedLine<float, 3>::Through(start, start + ray);
 
-void Shape::toggleWireframe()
-{
-    m_wireframe = !m_wireframe;
-}
-
-void Shape::draw(Shader *shader, GLenum mode)
-{
-    switch(mode){
-    case GL_TRIANGLES:
-        shader->setUniform("wire", 0);
-        shader->setUniform("m", m_modelMatrix);
-        shader->setUniform("red", m_red);
-        shader->setUniform("green", m_green);
-        shader->setUniform("blue", m_blue);
-        shader->setUniform("alpha", m_alpha);
-        glBindVertexArray(m_surfaceVao);
-        glDrawElements(mode, m_numSurfaceVertices, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
-        glBindVertexArray(0);
-        break;
-    case GL_POINTS:
-        shader->setUniform("m", m_modelMatrix);
-        glBindVertexArray(m_surfaceVao);
-        glDrawElements(mode, m_numSurfaceVertices, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
-        glBindVertexArray(0);
-        break;
+    for (const Vector3f &v : m_vertices) {
+        float d = line.distance(v);
+        if (d<dist) {
+            dist = d;
+            closest_vertex = i;
+        }
+        ++i;
     }
 
+    if (dist >= threshold) closest_vertex = -1;
+
+    return closest_vertex;
 }
+
+bool Shape::getAnchorPos(int lastSelected,
+                         Eigen::Vector3f& pos,
+                         Eigen::Vector3f  ray,
+                         Eigen::Vector3f  start)
+{
+    bool isAnchor = m_anchors.find(lastSelected) != m_anchors.end();
+    if (isAnchor) {
+        Eigen::Vector3f oldPos = m_vertices[lastSelected];
+        Eigen::ParametrizedLine line = ParametrizedLine<float, 3>::Through(start, start+ray);
+        pos = line.projection(oldPos);
+    }
+    return isAnchor;
+}
+
+// ================== Accessors
+
+const vector<Vector3f>   &Shape::getVertices() { return m_vertices; }
+const vector<Vector3i>   &Shape::getFaces()    { return m_faces;    }
+const unordered_set<int> &Shape::getAnchors()  { return m_anchors;  }
+
+// ================== Helpers
+
+Vector3f Shape::getNormal(const Vector3i& face)
+{
+    Vector3f& v1 = m_vertices[face[0]];
+    Vector3f& v2 = m_vertices[face[1]];
+    Vector3f& v3 = m_vertices[face[2]];
+    Vector3f e1 = v2 - v1;
+    Vector3f e2 = v3 - v1;
+    Vector3f n = e1.cross(e2);
+    return n.normalized();
+}
+
+void Shape::updateMesh(const std::vector<Eigen::Vector3i> &faces,
+                       const std::vector<Eigen::Vector3f> &vertices,
+                       std::vector<Eigen::Vector3f>& verts,
+                       std::vector<Eigen::Vector3f>& normals,
+                       std::vector<Eigen::Vector3f>& colors)
+{
+    verts.reserve(faces.size() * 3);
+    normals.reserve(faces.size() * 3);
+
+    for (const Eigen::Vector3i& face : faces) {
+        Vector3f n = getNormal(face);
+
+        for (auto& v: {face[0], face[1], face[2]}) {
+            normals.push_back(n);
+            verts.push_back(vertices[v]);
+
+            if (m_anchors.find(v) == m_anchors.end()) {
+                colors.push_back(Vector3f(1,0,0));
+            } else {
+                colors.push_back(Vector3f(0, 1 - m_green, 1 - m_blue));
+            }
+        }
+    }
+}
+

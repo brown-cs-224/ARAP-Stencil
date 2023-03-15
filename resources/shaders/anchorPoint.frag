@@ -5,6 +5,6 @@ in float fRadius;
 
 out vec4 fragColor;
 
-void main(){
+void main() {
     fragColor = fColor;
 }

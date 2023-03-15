@@ -1,9 +1,6 @@
-#ifndef CAMERA_H
-#define CAMERA_H
-#define EIGEN_DONT_VECTORIZE
-#define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
-#include <Eigen/Dense>
+#pragma once
 
+#include "Eigen/Dense"
 
 class Camera
 {
@@ -11,50 +8,44 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     Camera();
 
-    void setPosition(const Eigen::Vector3f &pos);
-    void move(const Eigen::Vector3f &move);
+    void setPosition(const Eigen::Vector3f      &position);
+    void move       (const Eigen::Vector3f &deltaPosition);
 
-    void rotate(float x, float y);
-    void setRotation(float pitch, float yaw);
-    void setPitch(float pitch);
-    void setYaw(float yaw);
+    void setRotation(float      pitch, float      yaw);
+    void rotate     (float deltaPitch, float deltaYaw);
 
-    void lookAt(const Eigen::Vector3f &eye, const Eigen::Vector3f &target, const Eigen::Vector3f &up);
-    void lookInDir(const Eigen::Vector3f &eye, const Eigen::Vector3f &target, const Eigen::Vector3f &up);
-    void setTarget(const Eigen::Vector3f &target);
+    void lookAt(const Eigen::Vector3f &eye, const Eigen::Vector3f &target);
+
+    void setOrbitPoint(const Eigen::Vector3f &target);
+    bool getIsOrbiting();
+    void setIsOrbiting(bool orbit);
+    void toggleIsOrbiting();
+    void zoom(float zoomMultiplier);
+
+    const Eigen::Matrix4f &getView();
+    const Eigen::Matrix4f &getProjection();
+    const Eigen::Vector3f &getLook();
+
     void setPerspective(float fovY, float aspect, float near, float far);
     void setAspect(float aspect);
 
-    void zoom(float zoom);
-    void setZoom(float zoom);
-
-    const Eigen::Matrix4f& getView();
-    const Eigen::Matrix4f& getProjection();
-    const Eigen::Vector3f& getPosition();
-    const Eigen::Vector3f &getLook();
-
-    void setOrbit(bool orbit);
-    void toggleOrbit();
-    bool isOrbit();
-
 private:
     void updateLook();
+    void updatePitchAndYaw();
 
-    float m_pitch, m_yaw;
+    // Do not mess with the order of these variables. Some Eigen voodoo will cause an inexplicable crash.
 
     Eigen::Vector3f m_position;
-    Eigen::Vector3f m_look;
-    Eigen::Vector3f m_target;
-    Eigen::Vector3f m_up;
 
+    float m_pitch, m_yaw;
+    Eigen::Vector3f m_look;
+
+    Eigen::Vector3f m_orbitPoint;
+    bool m_isOrbiting;
+
+    Eigen::Matrix4f m_view, m_proj;
     bool m_viewDirty, m_projDirty;
 
     float m_fovY, m_aspect, m_near, m_far;
     float m_zoom;
-
-    Eigen::Matrix4f m_view, m_proj;
-
-    bool m_orbit;
 };
-
-#endif // CAMERA_H

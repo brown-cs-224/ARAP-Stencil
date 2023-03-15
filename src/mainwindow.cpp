@@ -15,4 +15,3 @@ MainWindow::~MainWindow()
 {
     delete glWidget;
 }
-

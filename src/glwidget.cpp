@@ -10,48 +10,61 @@
 using namespace std;
 
 GLWidget::GLWidget(QWidget *parent) :
-    m_window(parent->parentWidget()),
-    m_time(), m_timer(),
-    m_forward(), m_sideways(), m_vertical(),
-    m_lastX(), m_lastY(),
+    QOpenGLWidget(parent),
+    m_deltaTimeProvider(),
+    m_intervalTimer(),
+    m_arap(),
+    m_camera(),
+    m_defaultShader(),
+    m_pointShader(),
+    m_forward(),
+    m_sideways(),
+    m_vertical(),
+    m_lastX(),
+    m_lastY(),
     m_capture(false)
 {
-    // View needs all mouse move events, not just mouse drag events
+    // GLWidget needs all mouse move events, not just mouse drag events
     setMouseTracking(true);
 
     // Hide the cursor since this is a fullscreen app
     QApplication::setOverrideCursor(Qt::ArrowCursor);
 
-    // View needs keyboard focus
+    // GLWidget needs keyboard focus
     setFocusPolicy(Qt::StrongFocus);
 
-    // The game loop is implemented using a timer
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(tick()));
+    // Function tick() will be called once per interva
+    connect(&m_intervalTimer, SIGNAL(timeout()), this, SLOT(tick()));
 }
 
 GLWidget::~GLWidget()
 {
-    delete m_defaultShader;
-    delete m_pointShader;
+    if (m_defaultShader != nullptr) delete m_defaultShader;
+    if (m_pointShader   != nullptr) delete m_pointShader;
 }
 
 // ================== Basic OpenGL Overrides
 
 void GLWidget::initializeGL()
 {
+    // Initialize GL extension wrangler
     glewExperimental = GL_TRUE;
-    if(glewInit() != GLEW_OK) {
-        std::cerr << "glew initialization failed" << std::endl;
-    }
+    GLenum err = glewInit();
+    if (err != GLEW_OK) fprintf(stderr, "Error while initializing GLEW: %s\n", glewGetErrorString(err));
+    fprintf(stdout, "Successfully initialized GLEW %s\n", glewGetString(GLEW_VERSION));
+
+    // Set clear color to white
+    glClearColor(1, 1, 1, 1);
+
+    // Enable depth-testing and backface culling
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    // alice blue
-    glClearColor(240.0f/255.0f, 248.0f/255.0f, 255.0f/255.0f, 1);
+    // Initialize the shader and simulation
+    m_defaultShader = new Shader(":resources/shaders/shader.vert",      ":resources/shaders/shader.frag");
+    m_pointShader   = new Shader(":resources/shaders/anchorPoint.vert", ":resources/shaders/anchorPoint.geom", ":resources/shaders/anchorPoint.frag");
 
-    m_defaultShader = new Shader(":/shaders/shader.vert", ":/shaders/shader.frag");
-    m_pointShader = new Shader(":/shaders/anchorPoint.vert", ":/shaders/anchorPoint.geom", ":/shaders/anchorPoint.frag");
 
     Eigen::Vector3f min, max, center, range, position;
     m_arap.init(min,max);
@@ -70,32 +83,32 @@ void GLWidget::initializeGL()
 
     m_move = range * 0.8;
 
-    m_camera.lookAt(position, center, Eigen::Vector3f::UnitY());
-    m_camera.setPerspective(120, width() / static_cast<float>(height()), near[2], far[2]);
+    // Initialize camera with a reasonable transform
+    Eigen::Vector3f eye    = {0, 2, -5};
+    Eigen::Vector3f target = {0, 1,  0};
+    m_camera.lookAt(eye, target);
+    m_camera.setOrbitPoint(target);
+    m_camera.setPerspective(120, width() / static_cast<float>(height()), 0.1, 50);
 
-    m_time.start();
-    m_timer.start(1000 / 60);
+    m_deltaTimeProvider.start();
+    m_intervalTimer.start(1000 / 60);
 }
 
 void GLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
-    Eigen::Matrix4f p = m_camera.getProjection();
-    Eigen::Matrix4f v =  m_camera.getView();
-    Eigen::Matrix4f mvp = p * v;
 
     m_defaultShader->bind();
-    m_defaultShader->setUniform("m", model);
-    m_defaultShader->setUniform("vp", mvp);
+    m_defaultShader->setUniform("proj", m_camera.getProjection());
+    m_defaultShader->setUniform("view", m_camera.getView());
     m_arap.draw(m_defaultShader, GL_TRIANGLES);
     m_defaultShader->unbind();
 
     m_pointShader->bind();
-    m_pointShader->setUniform("m", model);
-    m_pointShader->setUniform("vp", mvp);
-    m_pointShader->setUniform("vSize", m_vSize);
-    m_pointShader->setUniform("width", width());
+    m_pointShader->setUniform("proj",   m_camera.getProjection());
+    m_pointShader->setUniform("view",   m_camera.getView());
+    m_pointShader->setUniform("vSize",  m_vSize);
+    m_pointShader->setUniform("width",  width());
     m_pointShader->setUniform("height", height());
     m_arap.draw(m_pointShader, GL_POINTS);
     m_pointShader->unbind();
@@ -135,8 +148,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
     }
 
     m_capture = true;
-    m_lastX = event->x();
-    m_lastY = event->y();
+    m_lastX = event->position().x();
+    m_lastY = event->position().y();
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
@@ -177,58 +190,34 @@ void GLWidget::wheelEvent(QWheelEvent *event)
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
-    // Feel free to remove this
-    if (event->key() == Qt::Key_Escape) QApplication::quit();
+    if (event->isAutoRepeat()) return;
 
-    if(event->key() == Qt::Key_C) {
-        m_camera.toggleOrbit();
-    }
-    else if(event->key() == Qt::Key_W) {
-        m_forward += 1;
-    }
-    else if(event->key() == Qt::Key_S) {
-        m_forward -= 1;
-    }
-    else if(event->key() == Qt::Key_A) {
-        m_sideways -= 1;
-    }
-    else if(event->key() == Qt::Key_D) {
-        m_sideways += 1;
-    }
-    else if(event->key() == Qt::Key_Q) {
-        m_vertical -= 1;
-    }
-    else if(event->key() == Qt::Key_E) {
-        m_vertical += 1;
-    } else if(event->key() == Qt::Key_T) {
-        m_arap.toggleWire();
+    switch (event->key())
+    {
+    case Qt::Key_W: m_forward  += SPEED; break;
+    case Qt::Key_S: m_forward  -= SPEED; break;
+    case Qt::Key_A: m_sideways -= SPEED; break;
+    case Qt::Key_D: m_sideways += SPEED; break;
+    case Qt::Key_F: m_vertical -= SPEED; break;
+    case Qt::Key_R: m_vertical += SPEED; break;
+    case Qt::Key_C: m_camera.toggleIsOrbiting(); break;
+    case Qt::Key_T: m_arap.toggleWire(); break;
+    case Qt::Key_Escape: QApplication::quit();
     }
 }
 
 void GLWidget::keyReleaseEvent(QKeyEvent *event)
 {
-    // Don't remove this -- helper code for key repeat events
-    if(event->isAutoRepeat()) {
-        return;
-    }
+    if (event->isAutoRepeat()) return;
 
-    if(event->key() == Qt::Key_W) {
-        m_forward -= 1;
-    }
-    else if(event->key() == Qt::Key_S) {
-        m_forward += 1;
-    }
-    else if(event->key() == Qt::Key_A) {
-        m_sideways += 1;
-    }
-    else if(event->key() == Qt::Key_D) {
-        m_sideways -= 1;
-    }
-    else if(event->key() == Qt::Key_Q) {
-        m_vertical += 1;
-    }
-    else if(event->key() == Qt::Key_E) {
-        m_vertical -= 1;
+    switch (event->key())
+    {
+    case Qt::Key_W: m_forward  -= SPEED; break;
+    case Qt::Key_S: m_forward  += SPEED; break;
+    case Qt::Key_A: m_sideways += SPEED; break;
+    case Qt::Key_D: m_sideways -= SPEED; break;
+    case Qt::Key_F: m_vertical += SPEED; break;
+    case Qt::Key_R: m_vertical -= SPEED; break;
     }
 }
 
@@ -236,22 +225,25 @@ void GLWidget::keyReleaseEvent(QKeyEvent *event)
 
 void GLWidget::tick()
 {
-    float seconds = m_time.restart() * 0.001;
+    float deltaSeconds = m_deltaTimeProvider.restart() / 1000.f;
 
+    // Move camera
     auto look = m_camera.getLook();
     look.y() = 0;
     look.normalize();
     Eigen::Vector3f perp(-look.z(), 0, look.x());
-    Eigen::Vector3f moveVec = m_forward * look + m_sideways * perp + m_vertical * Eigen::Vector3f::UnitY();
-    moveVec = moveVec.cwiseProduct(m_move);
-    moveVec *= seconds;
+    Eigen::Vector3f moveVec = m_forward * look.normalized() + m_sideways * perp.normalized() + m_vertical * Eigen::Vector3f::UnitY();
+    moveVec *= deltaSeconds;
     m_camera.move(moveVec);
 
     // Flag this view for repainting (Qt will call paintGL() soon after)
     update();
 }
 
-Eigen::Vector3f GLWidget::transformToWorldRay(int x, int y) {
+// ================== Helper
+
+Eigen::Vector3f GLWidget::transformToWorldRay(int x, int y)
+{
     Eigen::Vector4f clipCoords = Eigen::Vector4f(
         (float(x) / width()) * 2.f - 1.f,
         1.f - (float(y) / height()) * 2.f, -1.f, 1.f
