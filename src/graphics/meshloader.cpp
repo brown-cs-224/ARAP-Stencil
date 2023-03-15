@@ -1,7 +1,7 @@
-#include "meshloader.h"
+#include "graphics/meshloader.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj/tiny_obj_loader.h>
+#include "util/tiny_obj_loader.h"
 
 #include <iostream>
 
@@ -9,9 +9,6 @@
 #include <QFile>
 #include <QTextStream>
 #include <QRegularExpression>
-#include <QFile>
-#include <QString>
-#include <QTextStream>
 #include <QFileInfo>
 #include <iostream>
 #include <set>
