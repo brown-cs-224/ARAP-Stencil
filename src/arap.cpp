@@ -3,7 +3,7 @@
 #include <iostream>
 #include <set>
 #include <map>
-#include "graphics/MeshLoader.h"
+#include "graphics/meshloader.h"
 #include<vector>
 using namespace Eigen;
 

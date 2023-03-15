@@ -1,4 +1,4 @@
-#include "GraphicsDebug.h"
+#include "graphicsdebug.h"
 
 #include <iostream>
 #include <vector>

@@ -1,4 +1,4 @@
-#include "Shader.h"
+#include "shader.h"
 
 #include <QFile>
 #include <QString>
@@ -7,7 +7,7 @@
 #include <iostream>
 #include <utility>
 
-#include "GraphicsDebug.h"
+#include "graphicsdebug.h"
 
 Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath)
 {
