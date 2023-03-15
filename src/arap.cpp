@@ -18,7 +18,7 @@ void ARAP::init(Eigen::Vector3f &min, Eigen::Vector3f &max)
     std::vector<Vector3f> vertices;
     std::vector<Vector3f> normals;
     std::vector<Vector3i> tets;
-    if(MeshLoader::loadTriMesh("meshes/armadillo.obj", vertices, normals, tets)) {
+    if(MeshLoader::loadTriMesh(":/meshes/armadillo.obj", vertices, normals, tets)) {
         m_shape.init(vertices, tets);
     }
     
