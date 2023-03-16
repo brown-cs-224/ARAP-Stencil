@@ -82,7 +82,6 @@ qt6_add_resources(${PROJECT_NAME} "Resources"
         resources/shaders/anchorPoint.vert
         resources/shaders/anchorPoint.geom
         resources/shaders/anchorPoint.frag
-        meshes/armadillo.obj
 )
 
 # GLEW: this provides support for Windows (including 64-bit)

@@ -11,6 +11,8 @@ public:
     void setPosition(const Eigen::Vector3f      &position);
     void move       (const Eigen::Vector3f &deltaPosition);
 
+    Eigen::Vector3f getPosition();
+
     void setRotation(float      pitch, float      yaw);
     void rotate     (float deltaPitch, float deltaYaw);
 
@@ -33,19 +35,21 @@ private:
     void updateLook();
     void updatePitchAndYaw();
 
-    // Do not mess with the order of these variables. Some Eigen voodoo will cause an inexplicable crash.
-
     Eigen::Vector3f m_position;
-
-    float m_pitch, m_yaw;
+    float m_pitch;
+    float m_yaw;
     Eigen::Vector3f m_look;
-
     Eigen::Vector3f m_orbitPoint;
     bool m_isOrbiting;
 
-    Eigen::Matrix4f m_view, m_proj;
-    bool m_viewDirty, m_projDirty;
+    Eigen::Matrix4f m_view;
+    Eigen::Matrix4f m_proj;
+    bool m_viewDirty;
+    bool m_projDirty;
 
-    float m_fovY, m_aspect, m_near, m_far;
+    float m_fovY;
+    float m_aspect;
+    float m_near;
+    float m_far;
     float m_zoom;
 };

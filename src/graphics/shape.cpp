@@ -9,9 +9,20 @@ using namespace std;
 // ================== Constructor
 
 Shape::Shape() :
+    m_surfaceVao(),
+    m_surfaceVbo(),
+    m_surfaceIbo(),
     m_numSurfaceVertices(),
     m_verticesSize(),
+    m_red(),
+    m_blue(),
+    m_green(),
+    m_alpha(),
+    m_faces(),
+    m_vertices(),
+    m_anchors(),
     m_modelMatrix(Matrix4f::Identity()),
+    lastSelected(-1),
     m_wireframe(false)
 {}
 
@@ -63,10 +74,10 @@ void Shape::init(const vector<Vector3f> &vertices, const vector<Vector3i> &trian
     m_numSurfaceVertices = faces.size() * 3;
     m_verticesSize = vertices.size();
     m_faces = triangles;
-    m_red   = 0.5f + 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    m_blue  = 0.5f + 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    m_green = 0.5f + 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    m_alpha = 0.5f * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    m_red   = 0.5f + 0.5f * rand() / ((float) RAND_MAX);
+    m_blue  = 0.5f + 0.5f * rand() / ((float) RAND_MAX);
+    m_green = 0.5f + 0.5f * rand() / ((float) RAND_MAX);
+    m_alpha = 1.0f;
 }
 
 void Shape::setVertices(const vector<Vector3f> &vertices)
@@ -130,25 +141,44 @@ void Shape::draw(Shader *shader, GLenum mode)
     }
 }
 
-void Shape::select(Shader *shader, int closest_vertex)
+SelectMode Shape::select(Shader *shader, int closest_vertex)
 {
-    if (m_anchors.find(closest_vertex) != m_anchors.end()) {
-        m_anchors.erase(closest_vertex);
-    } else {
+    if (closest_vertex == -1) return SelectMode::None;
+
+    bool vertexIsNowSelected = m_anchors.find(closest_vertex) == m_anchors.end();
+
+    if (vertexIsNowSelected) {
         m_anchors.insert(closest_vertex);
+    } else {
+        m_anchors.erase(closest_vertex);
     }
 
-    std::vector<Eigen::Vector3f> verts;
-    std::vector<Eigen::Vector3f> normals;
-    std::vector<Eigen::Vector3f> colors;
-    updateMesh(m_faces, m_vertices, verts, normals, colors);
+    selectHelper();
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3) + (colors.size() * 3)), nullptr, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * verts.size() * 3, static_cast<const void *>(verts.data()));
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * verts.size() * 3, sizeof(float) * normals.size() * 3, static_cast<const void *>(normals.data()));
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3)), sizeof(float) * colors.size() * 3, static_cast<const void *>(colors.data()));
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    return vertexIsNowSelected ? SelectMode::Anchor : SelectMode::Unanchor;
+}
+
+bool Shape::selectWithSpecifiedMode(Shader *shader, int closest_vertex, SelectMode mode)
+{
+    switch (mode) {
+    case SelectMode::None: {
+        return false;
+    }
+    case SelectMode::Anchor: {
+        if (m_anchors.find(closest_vertex) != m_anchors.end()) return false;
+        m_anchors.insert(closest_vertex);
+        break;
+    }
+    case SelectMode::Unanchor: {
+        if (m_anchors.find(closest_vertex) == m_anchors.end()) return false;
+        m_anchors.erase(closest_vertex);
+        break;
+    }
+    }
+
+    selectHelper();
+
+    return true;
 }
 
 int Shape::getClosestVertex(Vector3f start, Vector3f ray, float threshold)
@@ -193,6 +223,21 @@ const vector<Vector3i>   &Shape::getFaces()    { return m_faces;    }
 const unordered_set<int> &Shape::getAnchors()  { return m_anchors;  }
 
 // ================== Helpers
+
+void Shape::selectHelper()
+{
+    vector<Vector3f> verts;
+    vector<Vector3f> normals;
+    vector<Vector3f> colors;
+    updateMesh(m_faces, m_vertices, verts, normals, colors);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3) + (colors.size() * 3)), nullptr, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * verts.size() * 3, static_cast<const void *>(verts.data()));
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * verts.size() * 3, sizeof(float) * normals.size() * 3, static_cast<const void *>(normals.data()));
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * ((verts.size() * 3) + (normals.size() * 3)), sizeof(float) * colors.size() * 3, static_cast<const void *>(colors.data()));
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
 
 Vector3f Shape::getNormal(const Vector3i& face)
 {

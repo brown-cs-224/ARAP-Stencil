@@ -4,7 +4,8 @@
 
 Camera::Camera()
     : m_position(0,0,0),
-      m_pitch(0), m_yaw(0),
+      m_pitch(0),
+      m_yaw(0),
       m_look(0, 0, 1),
       m_orbitPoint(0, 0, 0),
       m_isOrbiting(false),
@@ -12,7 +13,10 @@ Camera::Camera()
       m_proj(Eigen::Matrix4f::Identity()),
       m_viewDirty(true),
       m_projDirty(true),
-      m_fovY(90), m_aspect(1), m_near(0.1f), m_far(50.f),
+      m_fovY(90),
+      m_aspect(1),
+      m_near(0.1f),
+      m_far(50.f),
       m_zoom(1)
 {}
 
@@ -35,7 +39,11 @@ void Camera::move(const Eigen::Vector3f &deltaPosition)
     }
 
     m_viewDirty = true;
+}
 
+Eigen::Vector3f Camera::getPosition()
+{
+    return m_position;
 }
 
 // ================== Rotation
@@ -111,23 +119,6 @@ void Camera::zoom(float zoomMultiplier)
     m_viewDirty = true;
 }
 
-// ================== Intrinsics
-
-void Camera::setPerspective(float fovY, float aspect, float near, float far)
-{
-    m_fovY = fovY;
-    m_aspect = aspect;
-    m_near = near;
-    m_far = far;
-    m_projDirty = true;
-}
-
-void Camera::setAspect(float aspect)
-{
-    m_aspect = aspect;
-    m_projDirty = true;
-}
-
 // ================== Important Getters
 
 const Eigen::Matrix4f &Camera::getView()
@@ -151,7 +142,7 @@ const Eigen::Matrix4f &Camera::getView()
 
 const Eigen::Matrix4f &Camera::getProjection()
 {
-    if(m_projDirty) {
+    if (m_projDirty) {
         float theta = m_fovY * 0.5f;
         float invRange = 1.f / (m_far - m_near);
         float invtan = 1.f / tanf(theta);
@@ -169,6 +160,23 @@ const Eigen::Matrix4f &Camera::getProjection()
 const Eigen::Vector3f &Camera::getLook()
 {
     return m_look;
+}
+
+// ================== Intrinsics
+
+void Camera::setPerspective(float fovY, float aspect, float near, float far)
+{
+    m_fovY = fovY;
+    m_aspect = aspect;
+    m_near = near;
+    m_far = far;
+    m_projDirty = true;
+}
+
+void Camera::setAspect(float aspect)
+{
+    m_aspect = aspect;
+    m_projDirty = true;
 }
 
 // ================== Private Helpers

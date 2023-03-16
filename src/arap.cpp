@@ -4,70 +4,54 @@
 #include <set>
 #include <map>
 #include "graphics/meshloader.h"
-#include<vector>
+#include <vector>
+
+using namespace std;
 using namespace Eigen;
 
-ARAP::ARAP(){}
+ARAP::ARAP() {}
 
-void ARAP::init(Eigen::Vector3f &min, Eigen::Vector3f &max)
+void ARAP::init(Eigen::Vector3f &coeffMin, Eigen::Vector3f &coeffMax)
 {
-    // STUDENTS: This code loads up the tetrahedral mesh in 'meshes/single-tet.obj'
-    //    (note: your working directory must be set to the root directory of the starter code
-    //    repo for this file to load correctly). You'll probably want to instead have this code
-    //    load up a tet mesh based on e.g. a file path specified with a command line argument.
-    std::vector<Vector3f> vertices;
-    std::vector<Vector3f> normals;
-    std::vector<Vector3i> tets;
-    if(MeshLoader::loadTriMesh(":/meshes/armadillo.obj", vertices, normals, tets)) {
-        m_shape.init(vertices, tets);
+    vector<Vector3f> vertices;
+    vector<Vector3i> triangles;
+
+    // If this doesn't work for you, remember to change your working directory
+    if (MeshLoader::loadTriMesh("meshes/cactus.obj", vertices, triangles)) {
+        m_shape.init(vertices, triangles);
     }
-    
-    MatrixX3f all_vertices = MatrixX3f(vertices.size(),3);
-    std::vector<Vector3d> double_verts;
+
+    // Students, please don't touch this code: get min and max for viewport stuff
+    MatrixX3f all_vertices = MatrixX3f(vertices.size(), 3);
     int i = 0;
-    for(auto particle: vertices) {
-        double_verts.push_back(Vector3d((double)particle[0], (double)particle[1], (double)particle[2]));
-        all_vertices.row(i) = particle;
-        i++;
+    for (unsigned long i = 0; i < vertices.size(); ++i) {
+        all_vertices.row(i) = vertices[i];
     }
-    min = all_vertices.colwise().minCoeff();
-    max = all_vertices.colwise().maxCoeff();
+    coeffMin = all_vertices.colwise().minCoeff();
+    coeffMax = all_vertices.colwise().maxCoeff();
 }
 
-
-void ARAP::move(int vertex, Vector3f pos)
+// Move an anchored vertex, defined by its index, to targetPosition
+void ARAP::move(int vertex, Vector3f targetPosition)
 {
     std::vector<Eigen::Vector3f> new_vertices = m_shape.getVertices();
     const std::unordered_set<int>& anchors = m_shape.getAnchors();
 
-    //TODO: implement ARAP here
-    new_vertices[vertex] = pos;
+    // TODO: implement ARAP here
+    new_vertices[vertex] = targetPosition;
+
+    // Here are some helpful controls for the application
+    //
+    // - You start in first-person camera mode
+    //   - WASD to move, left-click and drag to rotate
+    //   - R and F to move vertically up and down
+    //
+    // - C to change to orbit camera mode
+    //
+    // - Right-click (and, optionally, drag) to anchor/unanchor points
+    //   - Left-click an anchored point to move it around
+    //
+    // - Minus and equal keys (click repeatedly) to change the size of the vertices
 
     m_shape.setVertices(new_vertices);
-
-}
-//////////////////// No need to edit after this /////////////////////////
-int ARAP::getClosestVertex(Eigen::Vector3f start, Eigen::Vector3f ray){
-    return m_shape.getClosestVertex(start, ray);
-}
-
-
-void ARAP::draw(Shader *shader, GLenum mode)
-{
-    m_shape.draw(shader, mode);
-}
-
-void ARAP::select(Shader *shader, int vertex)
-{
-    m_shape.select(shader, vertex);
-}
-
-
-void ARAP::toggleWire()
-{
-    m_shape.toggleWireframe();
-}
-
-bool ARAP::getAnchorPos(int lastSelected, Eigen::Vector3f& pos, Eigen::Vector3f ray, Eigen::Vector3f start){
-    return m_shape.getAnchorPos(lastSelected, pos, ray, start);
 }

@@ -4,8 +4,8 @@ layout(points) in;
 layout (triangle_strip, max_vertices = 4) out;
 
 in vec4 vColor[];
-out vec4 fColor;
-out vec2 fPoint;
+out vec4  fColor;
+out vec2  fPoint;
 out float fRadius;
 
 uniform int width;
@@ -13,7 +13,7 @@ uniform int height;
 uniform float vSize;
 
 void main() {
-    vec4 offset = vec4(vSize / width, -vSize / height, 0.0, 0.0);
+    vec4 offset = vec4(vSize, -vSize, 0.0, 0.0);
 
     int i;
     for (i = 0; i < gl_in.length(); i ++) {
@@ -21,7 +21,7 @@ void main() {
 
         fColor = vColor[i];
         fPoint = vec2((p.x * 0.5 + 0.5) * width,
-                              (p.y * 0.5 + 0.5) * height);
+                      (p.y * 0.5 + 0.5) * height);
         fRadius = vSize;
 
         gl_Position = p + offset.yxzw;

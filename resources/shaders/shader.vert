@@ -9,12 +9,10 @@ uniform mat4 model;
 
 uniform mat3 inverseTransposeModel;
 
-out vec4 normal_worldSpace;
-out vec4 position_worldSpace;
+out vec3 normal_cameraSpace;
 
 void main() {
-    normal_worldSpace   = vec4(normalize(inverseTransposeModel * normal), 0);
-    position_worldSpace = vec4(position, 1.0);
+    normal_cameraSpace = normalize(inverse(transpose(mat3(view))) * inverseTransposeModel * normal);
 
-    gl_Position = proj * view * model * vec4(position, 1.0);
+    gl_Position = proj * view * model * vec4(position, 1);
 }

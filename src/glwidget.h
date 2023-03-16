@@ -24,9 +24,8 @@ public:
 private:
     static const int FRAMES_TO_AVERAGE = 30;
 
-private:
-
     Eigen::Vector3f transformToWorldRay(int x, int y);
+
     // Basic OpenGL Overrides
     void initializeGL()         override;
     void paintGL()              override;
@@ -40,30 +39,34 @@ private:
     void keyPressEvent    (QKeyEvent   *event) override;
     void keyReleaseEvent  (QKeyEvent   *event) override;
 
-private:
-    QElapsedTimer m_deltaTimeProvider; // For measuring elapsed time
-    QTimer        m_intervalTimer;     // For triggering timed events
+private slots:
+    // Physics Tick
+    void tick();
 
+private:
     ARAP    m_arap;
     Camera  m_camera;
     Shader *m_defaultShader;
     Shader *m_pointShader;
 
-    Eigen::Vector3f m_move;
+    float m_movementScaling;
+    float m_vertexSelectionThreshold;
     float m_vSize;
+
+    // Timing
+    QElapsedTimer m_deltaTimeProvider; // For measuring elapsed time
+    QTimer        m_intervalTimer;     // For triggering timed events
+
+    // Movement
     int m_forward;
     int m_sideways;
     int m_vertical;
 
+    // Mouse handler stuff
     int m_lastX;
     int m_lastY;
-
-    bool m_capture;
-
-    int m_lastSelected = -1;
-
-private slots:
-
-    // Physics Tick
-    void tick();
+    bool m_leftCapture;
+    bool m_rightCapture;
+    SelectMode m_rightClickSelectMode;
+    int m_lastSelectedVertex = -1;
 };

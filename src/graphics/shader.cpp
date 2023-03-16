@@ -243,15 +243,15 @@ void Shader::addUniform(const std::string &name) {
 bool Shader::printDebug() {
     bool noErrors = true;
 
-    for(auto &pair : m_trackedUniforms) {
-        if(!pair.second) {
+    for (auto &pair : m_trackedUniforms) {
+        if (!pair.second) {
             std::cerr << "Uniform '" << pair.first << "' was not set." << std::endl;
             noErrors = false;
         }
     }
 
-    for(auto &pair : m_trackedTextures) {
-        if(!pair.second) {
+    for (auto &pair : m_trackedTextures) {
+        if (!pair.second) {
             std::cerr << "Texture '" << pair.first << "' was not set." << std::endl;
             noErrors = false;
         }
@@ -261,11 +261,11 @@ bool Shader::printDebug() {
 }
 
 void Shader::resetDebug() {
-    for(auto &pair : m_trackedUniforms) {
+    for (auto &pair : m_trackedUniforms) {
         m_trackedUniforms[pair.first] = false;
     }
 
-    for(auto &pair : m_trackedTextures) {
+    for (auto &pair : m_trackedTextures) {
         m_trackedTextures[pair.first] = false;
     }
 }
@@ -275,7 +275,7 @@ std::string Shader::getFileContents(std::string path)
     QString qpath = QString::fromStdString(path);
     QFile file(qpath);
 
-    if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream stream(&file);
         QString contents = stream.readAll();
         file.close();

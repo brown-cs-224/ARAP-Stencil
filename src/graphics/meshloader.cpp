@@ -13,46 +13,53 @@
 #include <iostream>
 #include <set>
 
+using namespace std;
 using namespace Eigen;
 
-bool MeshLoader::loadTriMesh(const std::string &filepath, std::vector<Eigen::Vector3f> &vertices,  std::vector<Eigen::Vector3f> &normals, std::vector<Eigen::Vector3i> &faces)
+MeshLoader::MeshLoader() {}
+
+bool MeshLoader::loadTriMesh(const string &filePath, vector<Vector3f> &vertices, vector<Vector3i> &faces)
 {
     tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
+    vector<tinyobj::shape_t> shapes;
+    vector<tinyobj::material_t> materials;
 
-    QFileInfo info(QString((filepath).c_str()));
-    std::string err;
+    QFileInfo info(QString(filePath.c_str()));
+    string err;
     bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err,
                                 info.absoluteFilePath().toStdString().c_str(), (info.absolutePath().toStdString() + "/").c_str(), true);
+    if (!err.empty()) {
+        cerr << err << endl;
+    }
 
-    if(!ret || !err.empty() || attrib.vertices.size() == 0) {
-        std::cerr << "Failed to load/parse .obj file" << std::endl;
-        std::cerr << err << std::endl;
+    if (!ret) {
+        cerr << "Failed to load/parse .obj file" << endl;
         return false;
     }
 
-    const int numVerts = attrib.vertices.size() / 3;
-    vertices.resize(numVerts);
-    normals.resize(numVerts);
+    for (size_t s = 0; s < shapes.size(); s++) {
+        size_t index_offset = 0;
+        for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+            unsigned int fv = shapes[s].mesh.num_face_vertices[f];
 
-    for (unsigned int i = 0; i < shapes[0].mesh.indices.size(); i+=3) {
-        faces.push_back(Vector3i(shapes[0].mesh.indices[i].vertex_index, shapes[0].mesh.indices[i+1].vertex_index, shapes[0].mesh.indices[i+2].vertex_index));
-    }
+            Vector3i face;
+            for (size_t v = 0; v < fv; v++) {
+                tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
 
-    std::set<int> verts;
-    for (unsigned int i = 0; i < shapes[0].mesh.indices.size(); i++) {
-        const int vind = 3*shapes[0].mesh.indices[i].vertex_index;
-        if (verts.find(vind) == verts.end()) {
-            vertices[shapes[0].mesh.indices[i].vertex_index] = Vector3f(attrib.vertices[vind], attrib.vertices[vind+1], attrib.vertices[vind+2]);
-            verts.emplace(vind);
+                face[v] = idx.vertex_index;
+
+            }
+            faces.push_back(face);
+
+            index_offset += fv;
         }
     }
 
+    for (size_t i = 0; i < attrib.vertices.size(); i += 3) {
+        vertices.emplace_back(attrib.vertices[i], attrib.vertices[i + 1], attrib.vertices[i + 2]);
+    }
+
+    cout << "Loaded " << faces.size() << " faces and " << vertices.size() << " vertices" << endl;
+
     return true;
-}
-
-MeshLoader::MeshLoader()
-{
-
 }
