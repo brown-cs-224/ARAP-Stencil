@@ -31,8 +31,6 @@ public:
 
     void setModelMatrix(const Eigen::Affine3f &model);
 
-    void toggleWireframe();
-
     void draw(Shader *shader, GLenum mode);
     SelectMode select(Shader *shader, int vertex);
     bool selectWithSpecifiedMode(Shader *shader, int vertex, SelectMode mode);
@@ -61,7 +59,6 @@ private:
 
     Eigen::Matrix4f m_modelMatrix;
     int lastSelected = -1;
-    bool m_wireframe;
 
     // Helpers
 

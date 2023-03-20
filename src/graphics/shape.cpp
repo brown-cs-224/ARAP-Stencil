@@ -22,8 +22,7 @@ Shape::Shape() :
     m_vertices(),
     m_anchors(),
     m_modelMatrix(Matrix4f::Identity()),
-    lastSelected(-1),
-    m_wireframe(false)
+    lastSelected(-1)
 {}
 
 // ================== Initialization and Updating
@@ -102,10 +101,6 @@ void Shape::setVertices(const vector<Vector3f> &vertices)
 // ================== Model Matrix
 
 void Shape::setModelMatrix(const Affine3f &model) { m_modelMatrix = model.matrix(); }
-
-// ================== Wireframe
-
-void Shape::toggleWireframe() { m_wireframe = !m_wireframe; }
 
 // ================== General Graphics Stuff
 
