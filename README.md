@@ -32,7 +32,7 @@ Your code must implement the basic algorithm described in the ARAP paper. Each t
     * Determining the best-fit rotation transformation **R** for the moved point **p'** from original point **p** **(20 points)**.
     * Optimize the position **p'** given **p** and **R** by solving a sparse linear system. You will need to update the right-hand side of the equation accordingly.  **(25 points)**
 * Videos (described below) **(10 points)**
-* README **(5 points)**
+* README (described below) **(5 points)**
 
 Note that for simplicity, we only require the code to work on **closed, manifold** meshes. Successfully implementing all of the requirements results in a total of **95/100 points**.
 To score **100/100** (or more!), you’ll need to implement some extra features.
