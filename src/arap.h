@@ -17,7 +17,7 @@ public:
     void init(Eigen::Vector3f &min, Eigen::Vector3f &max);
     void move(int vertex, Eigen::Vector3f pos);
 
-    // ================== Students, Do Not Touch The Code Below
+    // ================== Students, If You Choose To Modify The Code Below, It's On You
 
     int getClosestVertex(Eigen::Vector3f start, Eigen::Vector3f ray, float threshold)
     {

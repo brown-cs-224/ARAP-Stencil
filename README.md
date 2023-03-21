@@ -1,125 +1,160 @@
 # Assignment 4: As-Rigid-As-Possible Surface Modeling (ARAP)
 
-
 **Released:** 3/20/23
 
 **Due:** 4/7/23 @ 11:59pm EST
 
-In this assignment, you will implement a system for user-interactive deformation of 3D meshes. In your system, mesh vertices can be re-positioned by clicking and dragging. Your system will update the rest of the mesh in response to these user interactions such that it moves as-rigidly-as-possible (i.e. the deformation it exhibits is close to a rigid transformation). The end result is a deformation that looks physically-plausible, as if the mesh has an underlying rig / skeletal armature. To achieve this goal, you will need to formulate the deformation process as an optimization problem which alternates between estimating the best-fit rigid transformation for each mesh vertex and solving a sparse linear system to find new mesh vertex positions.
+In this assignment, you will implement a system for user-interactive deformation of 3D meshes. In your system, mesh vertices can be re-positioned by clicking and dragging. Your system will update the rest of the mesh in response to these user interactions such that it moves as-rigidly-as-possible (i.e. the deformation it exhibits is close to a rigid transformation). The end result is a deformation that looks physically-plausible, as if the mesh has an underlying rig / skeletal armature.
 
+To achieve this goal, you will need to formulate the deformation process as an optimization problem, in which you will alternate between estimating the best-fit rigid transformation for each mesh vertex and solving a sparse linear system to find new mesh vertex positions.
 
 ## Relevant Reading
 
 - The lecture slides!
 - [As-Rigid-As-Possible Surface Modeling](https://igl.ethz.ch/projects/ARAP/arap_web.pdf) on the mathematics behind the ARAP algorithm.
 
-
 ## Requirements
 
 This assignment is out of **100 points**.
 
-Your code must implement the basic algorithm described in the ARAP paper. Each time the user initiates an interaction, your code should do the following:
+Your must implement exactly one feature: the algorithm described in the ARAP paper. That means, for each user interaction, your program must perform the following steps:
 
-* Initialize
-  * Set an initial value for the new vertex positions **p'**. It is fine to use the previous vertex positions **p** for this.
-  * Build the L matrix **(30 points)**
-    * Determine the one-ring neighbors of each vertex.
-    * Calculate the cotangent weight **w** for each vertex.
-    * Fill in the L matrix entries.
-  * Apply the user constraints by deleting rows/columns from L.
-  * Pre-compute the decomposition of the L matrix **(5 points)**. If you construct this decomposition on every iteration of optimization (instead of up-front), you will lose points for inefficiency.
-* Iterate between 
-    * Determining the best-fit rotation transformation **R** for the moved point **p'** from original point **p** **(20 points)**.
-    * Optimize the position **p'** given **p** and **R** by solving a sparse linear system. You will need to update the right-hand side of the equation accordingly.  **(25 points)**
-* Videos (described below) **(10 points)**
-* README (described below) **(5 points)**
+- [Initialization](#initialization) **(35 points)**
+- [Iterative solving](#iterative-solving) **(45 points)**
 
-Note that for simplicity, we only require the code to work on **closed, manifold** meshes. Successfully implementing all of the requirements results in a total of **95/100 points**.
-To score **100/100** (or more!), you’ll need to implement some extra features.
+You will be graded for inclusion of the following as well:
 
-### Video
+- [README](#readme) **(5 points)**
+- [Example videos](#example-videos) **(10 points)**
 
-You must submit at least one video demonstrating your system in action. The video(s) must demonstrate all of the features you have implemented (including any extra features).
+This sums to **95 points**. To score **100 points** (or more!), you’ll need to implement some [extra features](#extra-features).
 
-There are a few different ways you might go about making such videos:
+### Initialization
 
-* Screen capture an OpenGL rendering of your program, e.g. using the interactive viewer code that we provide below (see “Resources”).
-* Export frame-by-frame meshes from your program and use your path tracer from Assignment 1 to render them.
-* Use some other modeling/animation/rendering software to render exported meshes (e.g. Maya, Blender).
+1. Set an initial value for the new vertex positions $p'$. Use the previous vertex positions $p$ for this. **(0 points)**
+2. Build the $L$ matrix. **(25 points)**
+   - Determine the one-ring neighbors of each vertex;
+   - Calculate the cotangent weight $w$ for each vertex;
+   - Fill in the $L$ matrix entries.
+3. Apply user constraints by deleting rows/columns from $L$. **(5 points)**
+4. Precompute the decomposition of the $L$ matrix. **(5 points)**
+   - If you unnecessarily recompute this decomposition, you will lose points for inefficiency.
 
-Particularly creative and/or nicely-rendered animations may receive extra credit.
-Please use a standard format and codec for your video files (e.g. .mp4 with the H264 codec).
-To turn a set of frame images into a video, you can use [FFMPEG](https://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/).
+### Iterative Solving
+
+1. Determine the best-fit rotation transformations $R$ for the moved points $p'$ from original points $p$. **(20 points)**
+2. Optimize the positions $p'$ given $p$ and $R$ by solving a sparse linear system. You will need to update the right-hand side of the equation accordingly. **(25 points)**
 
 ### README
 
-You must also submit a Markdown README file. This file should describe how to run your program (e.g. what command line arguments are needed?)
+Your README **(5 points)** should describe:
 
-This file should also list all of the features your code implements.
+1. How to run your program, such as how to load a specific mesh; and
+2. _Briefly_, all the features your code implements, including any known bugs.
+   - E.g.: "I implemented ARAP ... and affine progressive meshes ... however, my program doesn't work in these specific cases: ..."
 
-Finally, it should describe what features are demonstrated by the video(s) you’ve submitted. You should embed the videos into the README file.
+You should also have all the [example videos](#example-videos) described in the next section embedded in your README.
+
+### Example Videos
+
+For this project, we ask that you demonstrate to us that your program achieves the following behavior specifications. You will do so by providing ≥1 video(s) per specification point below.
+
+| Program Specification                                                                                                                                                     | Our Example                          |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :----------------------------------- |
+| Anchoring exactly one point, then moving that point, results in perfectly rigid motion (mostly translation, though some rotation for smaller meshes is acceptable).       | ![](./readme-videos/sphere.gif)      |
+| Anchoring exactly two points, then rotating one point around the other at a fixed distance, results in perfectly rigid rotation.                                          | ![](./readme-videos/teapot.gif)      |
+| Deformations are "permanent"; i.e. un-anchoring previously moved points leaves the mesh in its deformed state, and further deformations can be made on the deformed mesh. | ![](./readme-videos/bean.gif)        |
+| You should be able to make the armadillo wave.                                                                                                                            | ![](./readme-videos/armadillo.gif)   |
+| Attempting to deform `tetrahedron.obj` should not cause it to collapse or behave erratically.                                                                             | ![](./readme-videos/tetrahedron.gif) |
+| Attempting to deform a (large) mesh like `bunny.obj` or `peter.obj` should not cause your code to crash.                                                                  | ![](./readme-videos/peter.gif)       |
+
+<details>
+  <summary>How should I generate these example videos?</summary>
+
+We suggest screen-recording the [interactive viewer](#interactive-viewer) provided in [the stencil code](#resources).
+
+To embed these videos into your READMEs, you can convert these into animated GIFs (using `ffmpeg` or an online tool like [ezgif](https://ezgif.com)), then embed them in Markdown like so:
+
+`![informative alt text](./path/to/mygif.gif)`
+
+</details>
 
 ### Extra Features
+
 Each of the following features that you implement will earn you extra points. The features are ordered roughly by difficulty of implementation.
 
-* Share on Slack a cool character-like (closed manifold) mesh that is fun to interact with **(2 points)**
-* Parallelize your code **(5 points)**
-  * There are multiple opportunities to exploit parallelism. For instance, you could solve the linear systems for each coordinate (x, y, z) in parallel. 
-* Improved interactivity **(8 points)**
-  * Implement some other way(s) to interact with the mesh beyond constraining/dragging single vertices.
-  * You might provide tools that allow for selecting and modifying continguous sets of vertices.
-  * You could also look into allowing direct specification of rotations in addition to translations (see the "Rotation-Propagation" paragraph on page 6 of the paper).
-* Affine progressive meshes **(10 points)**
-  * The ARAP optimization can become slow for very high-resolution meshes. To get around this problem, one can try to solve the optimization on a lower-resolution mesh, and then interpolate the result back to the high-resolution mesh.
-  * See Section 3.2 of [this paper](https://www.dgp.toronto.edu/~hsuehtil/pdf/cubeStyle_high.pdf) for one way to do this. You will need to re-use your mesh simplification code from the Mesh assignment.
-* Modified optimization objective **(15 points)**
-  * One can modify the basic ARAP optimization objective function to achieve other types of deformation.
-  * For example, [this paper](https://www.dgp.toronto.edu/~hsuehtil/pdf/cubeStyle_high.pdf) describes how adding an L1 regularizer to the objective produces 'cubified' meshes.
-  * Be aware that changing the objective may well change the method(s) you need to use to solve the resulting optimization problem.
-* Something else!
-  * This list is not meant to be exhaustive--if you’ve got another advanced feature in mind, go for it! (though you may want to ask a TA or the instructor first if you’re concerned about whether the idea is feasible)
+- Parallelize your code **(5 points)**
+  - There are multiple opportunities to exploit parallelism. For instance, you could solve the linear systems for each coordinate (x, y, z) in parallel.
+- Improved interactivity **(8 points)**
+  - Implement some other way(s) to interact with the mesh beyond constraining/dragging single vertices.
+  - You could also look into allowing direct specification of rotations in addition to translations (see the "Rotation-Propagation" paragraph on page 6 of the paper).
+- Affine progressive meshes **(10 points)**
+  - The ARAP optimization can become slow for very high-resolution meshes. To get around this problem, one can try to solve the optimization on a lower-resolution mesh, and then interpolate the result back to the high-resolution mesh.
+  - See Section 3.2 of [this paper](https://www.dgp.toronto.edu/~hsuehtil/pdf/cubeStyle_high.pdf) for one way to do this. You will need to re-use your mesh simplification code from the Mesh assignment.
+- Modified optimization objective **(15 points)**
+  - One can modify the basic ARAP optimization objective function to achieve other types of deformation.
+  - For example, [this paper](https://www.dgp.toronto.edu/~hsuehtil/pdf/cubeStyle_high.pdf) describes how adding an L1 regularizer to the objective produces 'cubified' meshes.
+  - Be aware that changing the objective may well change the method(s) you need to use to solve the resulting optimization problem.
+- Something else!
+  - This list is not meant to be exhaustive--if you’ve got another advanced feature in mind, go for it! (though you may want to ask a TA or the instructor first if you’re concerned about whether the idea is feasible)
 
-**Any extra features you implement must be mentioned in your README and demonstrated in your video (you can submit multiple videos to show off different features, if that’s easier).**
+**Any extra features you implement must be mentioned in your README, and each feature must be demonstrated in one or more videos.**
 
-### Resources
+## Grading
 
-Feel free to use this stencil code to get started. After cloning the repo locally, you'll need to run `git submodule update --init --recursive` to update the Eigen submodule.
+We will initially grade your project based solely on your README, example videos, and code.
 
-This starter project is quite barebones: it provides code to load .obj files into a simple mesh representation (list of vertices and list of faces), as well as code to a simple interactive 3D viewer for visualizing (and dynamically updating) meshes. You’ll need to implement everything else: building the sparse linear system, any auxiliary data structures you need to do so, etc.
+We will then follow up with a short in-person grading session to resolve any outstanding issues.
 
-The starter project also contains some .obj files you can use to test your code. There are also tons of 3D model files available on the internet. 
+You can help us make grading go smoother by providing excellent [example videos](#example-videos), to prove to us that your program meets our specifications~!
 
-**Solving sparse linear systems**: Eigen has code to help you with this. You'll want to look at [this page](https://eigen.tuxfamily.org/dox/group__TopicSparseSystems.html) in the Eigen documentation. We recommend using either the `SimplicialLLT` or `SimplicialLDLT` solvers, as they are specialized to be faster for symmetric positive definite (SPD) matrices (which your L matrix is).
+## Resources
 
-### Implementation & Debugging Tips
-* Use const and assert wherever possible.
-* Check for uninitialized values.
-* Use Qt Creator's debugger.
-* The cotangent function can be negative, be sure to use the **positive** cotangent weights (the absolute value of the cotangent).
-* Verify that your L matrix is **Positive Semi-Definite** (has eigenvalues and a determinant greater than or equal to zero)
-* We provided helper functions in graphics/shape.h, all the public member function should be enough for you to complete the minimum requirement without having to modify our helper classes. 
-* **REMINDER: Your code will run much faster if you compile in Release mode ;)**
+The stencil code is quite bare-bones: besides the main function, it provides code to load `.obj` files into a simple mesh representation (a list of vertices and a list of faces) and save that representation back to an `.obj` file. It also provides an interactive viewer for visualizing (and manipulating the vertices of) meshes.
 
-### Submission Instructions
+You’ll have to implement everything else: building the sparse linear system, any supporting data structures you need, etc.
 
-Submit your branch of the Github classroom repository to the ARAP assignment.
+To test your program, you may use the `.obj` files in `/meshes`. You may also use any other 3D models you like.
 
-## About the code
+<details>
+  <summary>Note about meshes with boundaries</summary>
 
-You'll want to look at src/arap.cpp to get started, as that's the only file you need to change (although you'll probably make several of your own new files, too).
-You also might want to look at src/view.cpp, if you're interested in adding new interactivity/controls to the program.
+You do not need to support meshes with boundaries for any part of this assignment. That is to say, you can always assume that every edge has two adjacent faces, so you won't have to worry about special-casing for edges on the boundary.
 
-Speaking of controls: the controls offered by the starter code are:
- * Move Camera: WASD
- * Look around: Click and hold mouse and drag
- * Toggle orbit mode: C (changes the camera from a first-person view to an orbiting camera a la what the Maya editor does)
+All the meshes provided in the stencil satisfy this property. If you choose to use any other meshes, it will be on you to make sure that this property is satisfied (else, your code might break).
 
+</details>
 
-## Example Video
+### Where To Start
 
+You'll want to look at `src/arap.cpp` to get started, as that's the only file you'll (definitely) need to change. You might also want to look at `src/glwidget.cpp`, if you're interested in adding new interactivity/controls to the program.
 
-https://user-images.githubusercontent.com/39507598/157359369-71d9a28f-0e49-4f83-880e-0119e0161f4f.mov
+### Interactive Viewer
 
-https://user-images.githubusercontent.com/39507598/157359482-750e4c76-daf6-4b7f-9611-a365cc6f9aa2.mov
+Speaking of controls, here's how you can interface with the interactive viewer:
 
-https://user-images.githubusercontent.com/39507598/157359737-86bfc3a5-c82b-4417-86d6-3e31a4b65dbe.mov
+- You start in first-person camera mode:
+  - `WASD` to move, `left-click` and drag to rotate
+  - `R` and `F` to move vertically up and down
+- `C` to change to orbit camera mode
+- `Right-click` (and, optionally, drag) to anchor/un-anchor points.
+  - `Left-click` an anchored point to move it around
+- Minus (`-`) and equal (`=`) keys (click repeatedly) to change the size of the vertices
+
+### Solving Sparse Linear Systems In Eigen
+
+You'll want to look at [this page](https://eigen.tuxfamily.org/dox/group__TopicSparseSystems.html) in the Eigen documentation. We recommend using either the `SimplicialLLT` or `SimplicialLDLT` solvers, as they are specialized to be faster for symmetric positive definite (SPD) matrices (which your $L$ matrix is).
+
+## Submission Instructions
+
+Submit your Github repository to the "ARAP" assignment.
+
+## Implementation & Debugging Tips
+
+- Use `const` and `assert` wherever possible.
+- Check for uninitialized values.
+- Use Qt Creator's debugger.
+- The cotangent function can be negative, be sure to use the **positive** cotangent weights (the absolute value of the cotangent).
+- Verify that your $L$ matrix is **positive semi-definite** (has eigenvalues and a determinant greater than or equal to zero)
+- We provided helper functions in `graphics/shape.h`, all the public member function should be enough for you to complete the minimum requirement without having to modify our helper classes.
+- **REMINDER: Your code will run much faster if you compile in Release mode ;)**
