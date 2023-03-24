@@ -93,15 +93,15 @@ void GLWidget::initializeGL()
 
     // Note for maintainers: Z-up
     float fovY = 120;
-    float near = 0.0001f;
-    float far  = 3 * extentLength;
+    float nearPlane = 0.0001f;
+    float farPlane  = 3 * extentLength;
 
     // Initialize camera with a reasonable transform
     Eigen::Vector3f eye    = center - Eigen::Vector3f::UnitZ() * extentLength;
     Eigen::Vector3f target = center;
     m_camera.lookAt(eye, target);
     m_camera.setOrbitPoint(target);
-    m_camera.setPerspective(120, width() / static_cast<float>(height()), near, far);
+    m_camera.setPerspective(120, width() / static_cast<float>(height()), nearPlane, farPlane);
 
     m_deltaTimeProvider.start();
     m_intervalTimer.start(1000 / 60);
