@@ -88,13 +88,17 @@ Each of the following features that you implement will earn you extra points. Th
 - Improved interactivity **(8 points)**
   - Implement some other way(s) to interact with the mesh beyond constraining/dragging single vertices.
   - You could also look into allowing direct specification of rotations in addition to translations (see the "Rotation-Propagation" paragraph on page 6 of the paper).
+  - Please record a video of how you interact with the mesh.
 - Affine progressive meshes **(10 points)**
   - The ARAP optimization can become slow for very high-resolution meshes. To get around this problem, one can try to solve the optimization on a lower-resolution mesh, and then interpolate the result back to the high-resolution mesh.
   - See Section 3.2 of [this paper](https://www.dgp.toronto.edu/~hsuehtil/pdf/cubeStyle_high.pdf) for one way to do this. You will need to re-use your mesh simplification code from the Mesh assignment.
+  - You may find some example high-resolution meshes [here] (https://odedstein.com/meshes/).
+  - Please record a video interacting with the high-resolution meshes.
 - Modified optimization objective **(15 points)**
   - One can modify the basic ARAP optimization objective function to achieve other types of deformation.
   - For example, [this paper](https://www.dgp.toronto.edu/~hsuehtil/pdf/cubeStyle_high.pdf) describes how adding an L1 regularizer to the objective produces 'cubified' meshes.
   - Be aware that changing the objective may well change the method(s) you need to use to solve the resulting optimization problem.
+  - Please show at least 2 pairs of images comparing your modified ARAP results and the original results. 
 - Something else!
   - This list is not meant to be exhaustive--if you’ve got another advanced feature in mind, go for it! (though you may want to ask a TA or the instructor first if you’re concerned about whether the idea is feasible)
 
