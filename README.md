@@ -92,7 +92,7 @@ Each of the following features that you implement will earn you extra points. Th
 - Affine progressive meshes **(10 points)**
   - The ARAP optimization can become slow for very high-resolution meshes. To get around this problem, one can try to solve the optimization on a lower-resolution mesh, and then interpolate the result back to the high-resolution mesh.
   - See Section 3.2 of [this paper](https://www.dgp.toronto.edu/~hsuehtil/pdf/cubeStyle_high.pdf) for one way to do this. You will need to re-use your mesh simplification code from the Mesh assignment.
-  - You may find some example high-resolution meshes [here] (https://odedstein.com/meshes/).
+  - You may find some example high-resolution meshes [here](https://graphics.stanford.edu/data/3Dscanrep/).
   - Please record a video interacting with the high-resolution meshes.
 - Modified optimization objective **(15 points)**
   - One can modify the basic ARAP optimization objective function to achieve other types of deformation.
