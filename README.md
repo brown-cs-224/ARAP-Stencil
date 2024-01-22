@@ -1,8 +1,8 @@
 # Assignment 4: As-Rigid-As-Possible Surface Modeling (ARAP)
 
-**Released:** 3/20/23
+**Released:** 3/18/24
 
-**Due:** 4/7/23 @ 11:59pm EST
+**Due:** 4/5/24 @ 11:59pm EST
 
 In this assignment, you will implement a system for user-interactive deformation of 3D meshes. In your system, mesh vertices can be re-positioned by clicking and dragging. Your system will update the rest of the mesh in response to these user interactions such that it moves as-rigidly-as-possible (i.e. the deformation it exhibits is close to a rigid transformation). The end result is a deformation that looks physically-plausible, as if the mesh has an underlying rig / skeletal armature.
 
