@@ -25,6 +25,12 @@ Your must implement exactly one feature: the algorithm described in the ARAP pap
 You will be graded for inclusion of the following as well:
 
 - [README](#readme) **(5 points)**
+  - You should list the starting lines of your implementation of these features:
+    - Build the L-matrix
+    - Apply constraints
+    - Precompute the decomposition of the L matrix
+    - Determine the best-fit rotations
+    - Optimize the positions
 - [Example videos](#example-videos) **(10 points)**
 
 This sums to **95 points**. To score **100 points** (or more!), you’ll need to implement some [extra features](#extra-features).
@@ -98,7 +104,7 @@ Each of the following features that you implement will earn you extra points. Th
   - One can modify the basic ARAP optimization objective function to achieve other types of deformation.
   - For example, [this paper](https://www.dgp.toronto.edu/~hsuehtil/pdf/cubeStyle_high.pdf) describes how adding an L1 regularizer to the objective produces 'cubified' meshes.
   - Be aware that changing the objective may well change the method(s) you need to use to solve the resulting optimization problem.
-  - Please show at least 2 pairs of images comparing your modified ARAP results and the original results. 
+  - Please show at least 2 pairs of images comparing your modified ARAP results and the original results.
 - Something else!
   - This list is not meant to be exhaustive--if you’ve got another advanced feature in mind, go for it! (though you may want to ask a TA or the instructor first if you’re concerned about whether the idea is feasible)
 
