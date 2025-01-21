@@ -25,7 +25,7 @@ Your must implement exactly one feature: the algorithm described in the ARAP pap
 You will be graded for inclusion of the following as well:
 
 - [README](#readme) **(5 points)**
-  - You should list the starting lines of your implementation of these features:
+  - You should link to the starting lines (on Github) of your implementation of these features:
     - Build the L-matrix
     - Apply constraints
     - Precompute the decomposition of the L matrix
